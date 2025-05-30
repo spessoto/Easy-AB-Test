@@ -766,6 +766,8 @@ function sabtr_render_report_page() {
     echo '<table class="widefat fixed striped sabtr-report-table">';
     echo '<thead><tr>';
     echo '<th>' . esc_html__('Teste (ID)', 'simple-ab-test-redirect') . '</th>';
+    echo '<th>' . esc_html__('Started', 'simple-ab-test-redirect') . '</th>';
+    echo '<th>' . esc_html__('Duration', 'simple-ab-test-redirect') . '</th>';
     echo '<th>' . esc_html__('Página Gatilho', 'simple-ab-test-redirect') . '</th>';
     echo '<th>' . esc_html__('Var. A (Controle)', 'simple-ab-test-redirect') . '</th>';
     echo '<th>' . esc_html__('Var. B (Variação)', 'simple-ab-test-redirect') . '</th>';
@@ -776,12 +778,17 @@ function sabtr_render_report_page() {
     echo '<th>' . esc_html__('Acessos B', 'simple-ab-test-redirect') . '</th>';
     echo '<th>' . esc_html__('Conversões B', 'simple-ab-test-redirect') . '</th>';
     echo '<th>' . esc_html__('Taxa Conv. B (%)', 'simple-ab-test-redirect') . '</th>';
+    echo '<th>' . esc_html__('Uplift (B vs A)', 'simple-ab-test-redirect') . '</th>';
     echo '<th>' . esc_html__('% Tráfego B', 'simple-ab-test-redirect') . '</th>';
+    echo '<th>' . esc_html__('Last Activity', 'simple-ab-test-redirect') . '</th>';
+    echo '<th>' . esc_html__('Logs', 'simple-ab-test-redirect') . '</th>';
     echo '</tr></thead><tbody>';
 
     foreach ($tests as $test_post) {
         $test_id = $test_post->ID;
         $test_title = get_the_title($test_id);
+        $test_start_date = get_the_date('Y-m-d', $test_id);
+        $duration_days = round((time() - strtotime($test_start_date)) / DAY_IN_SECONDS);
 
         $trigger_url_meta = get_post_meta($test_id, '_sabtr_trigger_url', true);
         $url_a_config_meta = get_post_meta($test_id, '_sabtr_url_a', true);
@@ -805,25 +812,59 @@ function sabtr_render_report_page() {
             $conversions_b = $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM $conversion_table WHERE test_id = %d AND variant = 'B'", $test_id));
         }
 
-        $rate_a = ($access_a > 0) ? round(($conversions_a / $access_a) * 100, 2) : 0;
-        $rate_b = ($access_b > 0) ? round(($conversions_b / $access_b) * 100, 2) : 0;
+        $rate_a_val = ($access_a > 0) ? (($conversions_a / $access_a) * 100) : 0;
+        $rate_b_val = ($access_b > 0) ? (($conversions_b / $access_b) * 100) : 0;
+        $rate_a_display = sprintf('%.2f', $rate_a_val);
+        $rate_b_display = sprintf('%.2f', $rate_b_val);
+
+        $uplift_display = __('N/A', 'simple-ab-test-redirect');
+        $uplift_class = 'sabtr-uplift-neutral';
+        if ($access_a > 0 || $access_b > 0) {
+            if ($rate_a_val > 0) {
+                $uplift = (($rate_b_val - $rate_a_val) / $rate_a_val) * 100;
+                $uplift_display = sprintf('%+.2f%%', $uplift);
+                $uplift_class = ($uplift > 0) ? 'sabtr-uplift-positive' : (($uplift < 0) ? 'sabtr-uplift-negative' : 'sabtr-uplift-neutral');
+            } elseif ($rate_b_val > 0) {
+                $uplift_display = __('+&infin;%', 'simple-ab-test-redirect'); // Positive infinity if A is 0 and B is positive
+                $uplift_class = 'sabtr-uplift-positive';
+            } else { // Both rates are 0
+                $uplift_display = __('0.00%', 'simple-ab-test-redirect');
+            }
+        }
+
+        $last_access_date = $wpdb->get_var($wpdb->prepare("SELECT MAX(date_accessed) FROM $log_table WHERE test_id = %d", $test_id));
+        $last_conversion_date = $wpdb->get_var($wpdb->prepare("SELECT MAX(date_converted) FROM $conversion_table WHERE test_id = %d", $test_id));
+        $last_activity_timestamp = null;
+        if ($last_access_date && $last_conversion_date) {
+            $last_activity_timestamp = max(strtotime($last_access_date), strtotime($last_conversion_date));
+        } elseif ($last_access_date) {
+            $last_activity_timestamp = strtotime($last_access_date);
+        } elseif ($last_conversion_date) {
+            $last_activity_timestamp = strtotime($last_conversion_date);
+        }
+        $last_activity_display = $last_activity_timestamp ? date_i18n(get_option('date_format') . ' ' . get_option('time_format'), $last_activity_timestamp) : __('N/A', 'simple-ab-test-redirect');
 
         $total_accesses_for_test = $access_a + $access_b;
         $total_conversions_for_test = $conversions_a + $conversions_b;
 
         echo '<tr>';
-        echo '<td><strong>' . esc_html($test_title) . '</strong> (' . esc_html($test_id) . ')</td>';
+        echo '<td><strong><a href="'.get_edit_post_link($test_id).'">' . esc_html($test_title) . '</a></strong> (' . esc_html($test_id) . ')</td>';
+        echo '<td>' . esc_html($test_start_date) . '</td>';
+        echo '<td>' . sprintf(esc_html__('%d days', 'simple-ab-test-redirect'), $duration_days) . '</td>';
         echo '<td>' . ($trigger_url_display ? '<a href="'.esc_url($trigger_url_display).'" target="_blank" title="'.esc_attr($trigger_url_display).'">'.esc_html(wp_html_excerpt($trigger_url_display, 30, '&hellip;')).'</a>' : '&mdash;') . '</td>';
         echo '<td>' . ($url_a_config_meta ? '<a href="'.esc_url($url_a_config_meta).'" target="_blank" title="'.esc_attr($url_a_config_meta).'">'.esc_html(wp_html_excerpt($url_a_config_meta, 30, '&hellip;')).'</a>' : esc_html($url_a_display)) . '</td>';
         echo '<td>' . ($url_b_display ? '<a href="'.esc_url($url_b_display).'" target="_blank" title="'.esc_attr($url_b_display).'">'.esc_html(wp_html_excerpt($url_b_display, 30, '&hellip;')).'</a>' : '&mdash;') . '</td>';
         echo '<td>' . ($conversion_url_meta ? '<a href="'.esc_url($conversion_url_meta).'" target="_blank" title="'.esc_attr($conversion_url_meta).'">'.esc_html(wp_html_excerpt($conversion_url_meta, 30, '&hellip;')).'</a>' : esc_html($conversion_url_display)) . '</td>';
         echo '<td>' . intval($access_a) . '</td>';
         echo '<td>' . intval($conversions_a) . '</td>';
-        echo '<td>' . esc_html($rate_a) . '%</td>';
+        echo '<td>' . esc_html($rate_a_display) . '%</td>';
         echo '<td>' . intval($access_b) . '</td>';
         echo '<td>' . intval($conversions_b) . '</td>';
-        echo '<td>' . esc_html($rate_b) . '%</td>';
+        echo '<td>' . esc_html($rate_b_display) . '%</td>';
+        echo '<td><span class="' . esc_attr($uplift_class) . '">' . esc_html($uplift_display) . '</span></td>';
         echo '<td>' . esc_html($percentage_b) . '%</td>';
+        echo '<td>' . esc_html($last_activity_display) . '</td>';
+        echo '<td><button class="button button-small sabtr-view-logs-btn" data-testid="' . esc_attr($test_id) . '">' . esc_html__('View Logs', 'simple-ab-test-redirect') . '</button></td>';
         echo '</tr>';
 
         $chart_data_array[] = array(
@@ -833,6 +874,8 @@ function sabtr_render_report_page() {
             'access_b' => intval($access_b),
             'conversions_a' => intval($conversions_a),
             'conversions_b' => intval($conversions_b),
+            'rate_a' => $rate_a_val,
+            'rate_b' => $rate_b_val,
             'total_accesses' => $total_accesses_for_test,
             'total_conversions' => $total_conversions_for_test,
             'has_conversion_url' => !empty($conversion_url_meta)
@@ -873,11 +916,23 @@ function sabtr_render_report_page() {
 
     echo '</div>';
     ?>
+    <div id="sabtr-logs-modal" style="display:none; background: #f1f1f1; padding: 20px; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 1000; box-shadow: 0 0 15px rgba(0,0,0,0.2); width: 80%; max-width: 700px; max-height: 80vh; overflow-y: auto;">
+        <h2 id="sabtr-modal-title"></h2>
+        <div id="sabtr-modal-content-access"><h3><?php _e('Recent Access Logs', 'simple-ab-test-redirect'); ?></h3><div class="sabtr-logs-container"></div></div>
+        <div id="sabtr-modal-content-conversion"><h3><?php _e('Recent Conversion Logs', 'simple-ab-test-redirect'); ?></h3><div class="sabtr-logs-container"></div></div>
+        <button id="sabtr-close-modal-btn" class="button button-secondary" style="margin-top:15px;"><?php _e('Close', 'simple-ab-test-redirect'); ?></button>
+    </div>
     <style>
         .sabtr-report-table th, .sabtr-report-table td { padding: 8px 10px; word-break: break-word; }
         .sabtr-report-table td a { text-decoration: none; }
         .sabtr-report-table td a:hover { text-decoration: underline; }
         .sabtr-chart-wrapper h3 { margin-top: 20px; margin-bottom: 10px; }
+        .sabtr-uplift-positive { color: #28a745; font-weight: bold; }
+        .sabtr-uplift-negative { color: #dc3545; font-weight: bold; }
+        .sabtr-uplift-neutral { color: #6c757d; }
+        #sabtr-logs-modal .sabtr-logs-container { max-height: 250px; overflow-y: auto; border: 1px solid #ddd; margin-top: 10px; padding: 10px; background: #fff; }
+        #sabtr-logs-modal table { margin-top: 0; }
+        #sabtr-logs-modal table td, #sabtr-logs-modal table th { font-size: 12px; padding: 6px 8px; }
     </style>
     <script type="text/javascript">
         document.addEventListener('DOMContentLoaded', function () {
@@ -940,14 +995,14 @@ function sabtr_render_report_page() {
                                 data: {
                                     labels: ['<?php echo esc_js(__('Variante A', 'simple-ab-test-redirect')); ?>', '<?php echo esc_js(__('Variante B', 'simple-ab-test-redirect')); ?>'],
                                     datasets: [{
-                                        label: '<?php echo esc_js(__('Conversões', 'simple-ab-test-redirect')); ?>',
-                                        data: [test.conversions_a, test.conversions_b],
+                                    label: '<?php echo esc_js(__('Conversion Rate (%)', 'simple-ab-test-redirect')); ?>',
+                                    data: [test.rate_a, test.rate_b],
                                         backgroundColor: ['rgba(75, 192, 192, 0.6)', 'rgba(255, 159, 64, 0.6)'],
                                         borderColor: ['rgba(75, 192, 192, 1)', 'rgba(255, 159, 64, 1)'],
                                         borderWidth: 1
                                     }]
                                 },
-                                options: { ...commonChartOptions, plugins: { ...commonChartOptions.plugins, title: { display: true, text: '<?php echo esc_js(__('Comparativo de Conversões', 'simple-ab-test-redirect')); ?>' } } }
+                            options: { ...commonChartOptions, plugins: { ...commonChartOptions.plugins, title: { display: true, text: '<?php echo esc_js(__('Conversion Rate Comparison', 'simple-ab-test-redirect')); ?>' } } }
                             });
                             // console.log('Simple AB Test: Gráfico de conversão para teste ID ' + test.id + ' renderizado.');
                         } catch (e) {
@@ -958,13 +1013,128 @@ function sabtr_render_report_page() {
                     }
                 }
             });
+
+            const modal = document.getElementById('sabtr-logs-modal');
+            const closeBtn = document.getElementById('sabtr-close-modal-btn');
+            const modalTitle = document.getElementById('sabtr-modal-title');
+            const accessLogsContainer = document.querySelector('#sabtr-modal-content-access .sabtr-logs-container');
+            const conversionLogsContainer = document.querySelector('#sabtr-modal-content-conversion .sabtr-logs-container');
+
+            document.querySelectorAll('.sabtr-view-logs-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    const testId = this.dataset.testid;
+                    const testTitle = this.closest('tr').querySelector('td:first-child strong a').textContent;
+                    modalTitle.textContent = '<?php echo esc_js(__('Logs for Test:', 'simple-ab-test-redirect')); ?> ' + testTitle + ' (ID: ' + testId + ')';
+
+                    accessLogsContainer.innerHTML = '<?php echo esc_js(__('Loading...', 'simple-ab-test-redirect')); ?>';
+                    conversionLogsContainer.innerHTML = '<?php echo esc_js(__('Loading...', 'simple-ab-test-redirect')); ?>';
+                    modal.style.display = 'block';
+
+                    // Fetch Access Logs
+                    fetch(ajaxurl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                        body: new URLSearchParams({
+                            action: 'sabtr_fetch_logs',
+                            nonce: '<?php echo wp_create_nonce('sabtr_fetch_logs_nonce'); ?>',
+                            test_id: testId,
+                            log_type: 'access'
+                        })
+                    }).then(response => response.json()).then(data => {
+                        renderLogs(accessLogsContainer, data.data);
+                    });
+
+                    // Fetch Conversion Logs
+                    fetch(ajaxurl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                        body: new URLSearchParams({
+                            action: 'sabtr_fetch_logs',
+                            nonce: '<?php echo wp_create_nonce('sabtr_fetch_logs_nonce'); ?>',
+                            test_id: testId,
+                            log_type: 'conversion'
+                        })
+                    }).then(response => response.json()).then(data => {
+                        renderLogs(conversionLogsContainer, data.data);
+                    });
+                });
+            });
+
+            closeBtn.addEventListener('click', function() { modal.style.display = 'none'; });
+            window.addEventListener('click', function(event) {
+                if (event.target === modal) { modal.style.display = 'none'; }
+            });
+
+            function renderLogs(container, logs) {
+                if (!logs || logs.length === 0) {
+                    container.innerHTML = '<p><?php echo esc_js(__('No logs found.', 'simple-ab-test-redirect')); ?></p>';
+                    return;
+                }
+                let html = '<table class="wp-list-table widefat striped fixed"><thead><tr><th><?php echo esc_js(__('Date', 'simple-ab-test-redirect')); ?></th><th><?php echo esc_js(__('Variant', 'simple-ab-test-redirect')); ?></th><th><?php echo esc_js(__('IP Address', 'simple-ab-test-redirect')); ?></th><th><?php echo esc_js(__('User Agent (Excerpt)', 'simple-ab-test-redirect')); ?></th></tr></thead><tbody>';
+                logs.forEach(log => {
+                    html += `<tr><td>${log.date}</td><td>${log.variant}</td><td>${log.ip_address}</td><td>${log.user_agent.substring(0,50)}...</td></tr>`;
+                });
+                html += '</tbody></table>';
+                container.innerHTML = html;
+            }
         });
     </script>
     <?php
 }
 
 /* -----------------------------
- * 11. Link de Configurações na lista de plugins
+ * 11. AJAX Handler for Log Fetching
+ * ----------------------------- */
+add_action('wp_ajax_sabtr_fetch_logs', 'sabtr_ajax_fetch_logs_callback');
+function sabtr_ajax_fetch_logs_callback() {
+    check_ajax_referer('sabtr_fetch_logs_nonce', 'nonce');
+
+    $test_id = isset($_POST['test_id']) ? intval($_POST['test_id']) : 0;
+    $log_type = isset($_POST['log_type']) ? sanitize_text_field(wp_unslash($_POST['log_type'])) : 'access';
+
+    if (!$test_id || !current_user_can('manage_options')) {
+        wp_send_json_error(__('Invalid request or permissions.', 'simple-ab-test-redirect'));
+        return;
+    }
+
+    global $wpdb;
+    $results = array();
+    $limit = 20;
+
+    if ($log_type === 'access') {
+        $table_name = $wpdb->prefix . 'ab_test_logs';
+        $date_column = 'date_accessed';
+        $raw_logs = $wpdb->get_results($wpdb->prepare(
+            "SELECT {$date_column} as date, variant, ip_address, user_agent FROM {$table_name} WHERE test_id = %d ORDER BY {$date_column} DESC LIMIT %d",
+            $test_id, $limit
+        ));
+    } elseif ($log_type === 'conversion') {
+        $table_name = $wpdb->prefix . 'ab_test_conversions';
+        $date_column = 'date_converted';
+        $raw_logs = $wpdb->get_results($wpdb->prepare(
+            "SELECT {$date_column} as date, variant, ip_address, user_agent FROM {$table_name} WHERE test_id = %d ORDER BY {$date_column} DESC LIMIT %d",
+            $test_id, $limit
+        ));
+    } else {
+        wp_send_json_error(__('Invalid log type.', 'simple-ab-test-redirect'));
+        return;
+    }
+
+    if ($raw_logs) {
+        foreach($raw_logs as $log_entry) {
+            $results[] = array(
+                'date' => date_i18n(get_option('date_format') . ' ' . get_option('time_format'), strtotime($log_entry->date)),
+                'variant' => esc_html($log_entry->variant),
+                'ip_address' => esc_html(preg_replace('/([0-9]+)\.([0-9]+)\.([0-9]+)\.([0-9]+)/', '$1.$2.XX.XX', $log_entry->ip_address)), // Basic IP masking
+                'user_agent' => esc_html($log_entry->user_agent)
+            );
+        }
+    }
+    wp_send_json_success($results);
+}
+
+/* -----------------------------
+ * 12. Link de Configurações na lista de plugins
  * ----------------------------- */
 add_filter('plugin_action_links_' . plugin_basename(SABTR_PLUGIN_FILE), 'sabtr_add_settings_link');
 function sabtr_add_settings_link($links) {
