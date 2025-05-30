@@ -10,7 +10,7 @@
 **Tags:** a/b test, ab test, split test, marketing, optimization, wordpress, redirect, trigger url, conversion tracking, reports
 **Requires at least:** 6.0.0
 **Tested up to:** 6.8.1
-**Stable tag:** 3.3.2
+**Stable tag:** 3.3.3
 **License:** GPLv2 or later
 **License URI:** https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -109,6 +109,12 @@ Available options include:
 
 ## Changelog
 
+*   **3.3.3**
+    *   Enhanced A/B test dashboard:
+        *   Added new data columns: "Started", "Duration", "Uplift (B vs A)", "Last Activity".
+        *   Implemented a "View Logs" button per test to show recent access/conversion logs in a modal.
+        *   Changed the conversion chart to display "Conversion Rate Comparison" (rates % instead of counts).
+        *   Linked test titles in the report table to their edit screens.
 *   **3.3.2**
     *   Initial detailed README.md with multilingual support.
     *   Updated plugin name to Simple AB Test Redirect.
@@ -127,7 +133,7 @@ caio.spessoto@hotmail.com
 **Tags:** teste a/b, ab test, split test, marketing, otimização, wordpress, redirecionamento, url gatilho, rastreamento de conversão, relatórios
 **Requires at least:** 6.0.0
 **Tested up to:** 6.8.1
-**Stable tag:** 3.3.2
+**Stable tag:** 3.3.3
 **License:** GPLv2 ou posterior
 **License URI:** https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -226,6 +232,12 @@ As opções disponíveis incluem:
 
 ## Changelog
 
+*   **3.3.3**
+    *   Painel de relatórios dos testes A/B aprimorado:
+        *   Adicionadas novas colunas de dados: "Iniciado", "Duração", "Uplift (B vs A)", "Última Atividade".
+        *   Implementado um botão "Ver Logs" por teste para exibir logs recentes de acesso/conversão em um modal.
+        *   Alterado o gráfico de conversão para exibir "Comparação de Taxas de Conversão" (taxas % em vez de contagens).
+        *   Títulos dos testes na tabela de relatórios agora são links para suas telas de edição.
 *   **3.3.2**
     *   README.md inicial detalhado com suporte multilíngue.
     *   Nome do plugin atualizado para Simple AB Test Redirect.
@@ -244,7 +256,7 @@ caio.spessoto@hotmail.com
 **Tags:** prueba a/b, ab test, split test, marketing, optimización, wordpress, redirección, url de activación, seguimiento de conversiones, informes
 **Requires at least:** 6.0.0
 **Tested up to:** 6.8.1
-**Stable tag:** 3.3.2
+**Stable tag:** 3.3.3
 **License:** GPLv2 o posterior
 **License URI:** https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -343,6 +355,12 @@ Las opciones disponibles incluyen:
 
 ## Changelog
 
+*   **3.3.3**
+    *   Panel de informes de pruebas A/B mejorado:
+        *   Añadidas nuevas columnas de datos: "Iniciado", "Duración", "Uplift (B vs A)", "Última Actividad".
+        *   Implementado un botón "Ver Registros" por prueba para mostrar registros recientes de acceso/conversión en un modal.
+        *   Cambiado el gráfico de conversión para mostrar "Comparación de Tasas de Conversión" (tasas % en lugar de recuentos).
+        *   Los títulos de las pruebas en la tabla de informes ahora enlazan a sus pantallas de edición.
 *   **3.3.2**
     *   README.md inicial detallado con soporte multilingüe.
     *   Nombre del plugin actualizado a Simple AB Test Redirect.
@@ -352,3 +370,5 @@ Las opciones disponibles incluyen:
 ## Soporte
 
 caio.spessoto@hotmail.com
+
+[end of README.md]

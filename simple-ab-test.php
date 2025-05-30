@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Simple AB Test Redirect
  * Description: Plugin avançado e seguro para múltiplos testes A/B com URLs de gatilho, redirecionamento, logs detalhados, rastreamento de conversões, relatórios gráficos, notificações e auditoria.
- * Version: 3.3.2
+ * Version: 3.3.3
  * Author: Caio Spessoto
  * Text Domain: simple-ab-test-redirect
  * Domain Path: /languages
