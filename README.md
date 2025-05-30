@@ -10,7 +10,7 @@
 **Tags:** a/b test, ab test, split test, marketing, optimization, wordpress, redirect, trigger url, conversion tracking, reports
 **Requires at least:** 6.0.0
 **Tested up to:** 6.8.1
-**Stable tag:** 3.3.5
+**Stable tag:** 3.3.6
 **License:** GPLv2 or later
 **License URI:** https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -53,11 +53,12 @@ Once the plugin is activated, you should find a "Simple AB Test Redirect" menu i
 
 1.  Navigate to the **Simple AB Test Redirect** section in your WordPress admin panel.
 2.  Click on an option like **"Create New Test"** or **"Add Test"**.
-3.  Fill in the test details:
+3.  Fill in the test details. Each field in the test configuration form is accompanied by an information icon (ℹ️). Hover over or click this icon to see detailed help text for that specific field.
     *   **Trigger URL:** Enter the full URL of the page you intend to test (e.g., `https://www.yoursite.com/your-page`). This is the URL visitors will access to activate the test.
     *   **Page A URL (Control):** Enter the full URL for the original version of your page (e.g., `https://www.yoursite.com/your-page-version-a`). This is your control.
     *   **Page B URL (Variation):** Enter the full URL for the variation page you want to test against Page A (e.g., `https://www.yoursite.com/your-page-version-b`).
     *   **Traffic to Page B (%):** Use the slider or input field to set the percentage of visitors who will be directed to Page B. The default is 50%.
+    *   **Enable Schedule (Checkbox):** Check this box if you want to set specific start and/or end dates for your test. If unchecked, the date fields below it will be hidden and the test will run according to its publication status (unless dates were previously set and this is unchecked to pause scheduling).
     *   **Start Date (Optional):** Set a specific date for the test to begin. If left blank, the test will start as soon as it's published (and active according to its schedule).
     *   **End Date (Optional):** Set a specific date for the test to end. If left blank, the test will run indefinitely until manually stopped or if an end date is set later. The test will not run after this date.
     *   **Conversion Link:** Enter the full URL that signifies a successful conversion for this test. This could be a thank-you page after a form submission, a purchase confirmation page, etc. (e.g., `https://www.yoursite.com/thank-you`).
@@ -114,6 +115,10 @@ Available options include:
 
 ## Changelog
 
+*   **3.3.6**
+    *   Improved UI/UX for A/B Test creation form:
+        *   Replaced always-visible help texts with icon-based tooltips for a cleaner interface.
+        *   Added an "Enable Schedule" switch to show/hide Start and End Date fields, making scheduling more intuitive.
 *   **3.3.5**
     *   Added Enhanced Bot/Crawler Exclusion: Implemented a feature to filter out known bots and crawlers based on User-Agent strings.
     *   Added a setting in "Settings > AB Test Config" to enable/disable this feature (enabled by default).
@@ -145,7 +150,7 @@ caio.spessoto@hotmail.com
 **Tags:** teste a/b, ab test, split test, marketing, otimização, wordpress, redirecionamento, url gatilho, rastreamento de conversão, relatórios
 **Requires at least:** 6.0.0
 **Tested up to:** 6.8.1
-**Stable tag:** 3.3.5
+**Stable tag:** 3.3.6
 **License:** GPLv2 ou posterior
 **License URI:** https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -188,11 +193,12 @@ Assim que o plugin for ativado, você deverá encontrar um menu "Simple AB Test 
 
 1.  Navegue até a seção **Simple AB Test Redirect** no seu painel administrativo do WordPress.
 2.  Clique em uma opção como **"Criar Novo Teste"** ou **"Adicionar Teste"**.
-3.  Preencha os detalhes do teste:
+3.  Preencha os detalhes do teste. Cada campo no formulário de configuração do teste é acompanhado por um ícone de informação (ℹ️). Passe o mouse sobre ou clique neste ícone para ver o texto de ajuda detalhado para aquele campo específico.
     *   **URL Gatilho:** Insira a URL completa da página que você pretende testar (ex: `https://www.seusite.com/sua-pagina`). Esta é a URL que os visitantes acessarão para ativar o teste.
     *   **URL da Página A (Controle):** Insira a URL completa para a versão original da sua página (ex: `https://www.seusite.com/sua-pagina-versao-a`). Este é o seu controle.
     *   **URL da Página B (Variação):** Insira a URL completa para a página de variação que você quer testar contra a Página A (ex: `https://www.seusite.com/sua-pagina-versao-b`).
     *   **Tráfego para Página B (%):** Use o controle deslizante ou campo de entrada para definir a porcentagem de visitantes que serão direcionados para a Página B. O padrão é 50%.
+    *   **Agendar Teste? (Caixa de seleção):** Marque esta caixa se desejar definir datas de início e/ou término específicas para o seu teste. Se desmarcado, os campos de data abaixo ficarão ocultos e o teste será executado de acordo com seu status de publicação (a menos que as datas tenham sido definidas anteriormente e esta opção seja desmarcada para pausar o agendamento).
     *   **Data de Início (Opcional):** Defina uma data específica para o início do teste. Se deixado em branco, o teste começará assim que for publicado (e ativo conforme sua programação).
     *   **Data de Término (Opcional):** Defina uma data específica para o término do teste. Se deixado em branco, o teste será executado indefinidamente até ser interrompido manualmente ou se uma data de término for definida posteriormente. O teste não será executado após esta data.
     *   **Link de Conversão:** Insira a URL completa que significa uma conversão bem-sucedida para este teste. Esta pode ser uma página de agradecimento após o envio de um formulário, uma página de confirmação de compra, etc. (ex: `https://www.seusite.com/obrigado`).
@@ -249,6 +255,10 @@ As opções disponíveis incluem:
 
 ## Changelog
 
+*   **3.3.6**
+    *   Melhoria na UI/UX do formulário de criação de Testes A/B:
+        *   Textos de ajuda sempre visíveis substituídos por dicas de ferramenta baseadas em ícones para uma interface mais limpa.
+        *   Adicionado um interruptor "Agendar Teste?" para mostrar/ocultar os campos de Data de Início e Fim, tornando o agendamento mais intuitivo.
 *   **3.3.5**
     *   Adicionada Exclusão Aprimorada de Bots/Rastreadores: Implementado um recurso para filtrar bots e rastreadores conhecidos com base em strings de User-Agent.
     *   Adicionada uma configuração em "Configurações > Configuração AB Test" para ativar/desativar este recurso (ativado por padrão).
@@ -280,7 +290,7 @@ caio.spessoto@hotmail.com
 **Tags:** prueba a/b, ab test, split test, marketing, optimización, wordpress, redirección, url de activación, seguimiento de conversiones, informes
 **Requires at least:** 6.0.0
 **Tested up to:** 6.8.1
-**Stable tag:** 3.3.5
+**Stable tag:** 3.3.6
 **License:** GPLv2 o posterior
 **License URI:** https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -323,11 +333,12 @@ Una vez que el plugin esté activado, deberías encontrar un menú "Simple AB Te
 
 1.  Navega a la sección **Simple AB Test Redirect** en tu panel de administración de WordPress.
 2.  Haz clic en una opción como **"Crear Nueva Prueba"** o **"Añadir Prueba"**.
-3.  Completa los detalles de la prueba:
+3.  Completa los detalles de la prueba. Cada campo en el formulario de configuración de la prueba está acompañado por un icono de información (ℹ️). Pase el cursor sobre o haga clic en este icono para ver el texto de ayuda detallado para ese campo específico.
     *   **URL de Activación:** Ingresa la URL completa de la página que pretendes probar (por ejemplo, `https://www.tusitio.com/tu-pagina`). Esta es la URL a la que accederán los visitantes para activar la prueba.
     *   **URL de la Página A (Control):** Ingresa la URL completa de la versión original de tu página (por ejemplo, `https://www.tusitio.com/tu-pagina-version-a`). Este es tu control.
     *   **URL de la Página B (Variación):** Ingresa la URL completa de la página de variación que quieres probar contra la Página A (por ejemplo, `https://www.tusitio.com/tu-pagina-version-b`).
     *   **Tráfico a la Página B (%):** Usa el control deslizante o el campo de entrada para establecer el porcentaje de visitantes que serán dirigidos a la Página B. El valor predeterminado es 50%.
+    *   **Programar Prueba? (Casilla de verificación):** Marque esta casilla si desea establecer fechas de inicio y/o finalización específicas para su prueba. Si está desmarcada, los campos de fecha debajo de ella se ocultarán y la prueba se ejecutará según su estado de publicación (a menos que las fechas se hayan establecido previamente y esta opción se desmarque para pausar la programación).
     *   **Fecha de Inicio (Opcional):** Establece una fecha específica para que comience la prueba. Si se deja en blanco, la prueba comenzará tan pronto como se publique (y esté activa según su programación).
     *   **Fecha de Finalización (Opcional):** Establece una fecha específica para que finalice la prueba. Si se deja en blanco, la prueba se ejecutará indefinidamente hasta que se detenga manualmente o si se establece una fecha de finalización más tarde. La prueba no se ejecutará después de esta fecha.
     *   **Enlace de Conversión:** Ingresa la URL completa que significa una conversión exitosa para esta prueba. Podría ser una página de agradecimiento después de enviar un formulario, una página de confirmación de compra, etc. (por ejemplo, `https://www.tusitio.com/gracias`).
@@ -384,6 +395,10 @@ Las opciones disponibles incluyen:
 
 ## Changelog
 
+*   **3.3.6**
+    *   Mejora en la UI/UX del formulario de creación de Pruebas A/B:
+        *   Textos de ayuda siempre visibles reemplazados por información emergente basada en iconos para una interfaz más limpia.
+        *   Añadido un interruptor "¿Programar Prueba?" para mostrar/ocultar los campos de Fecha de Inicio y Finalización, haciendo la programación más intuitiva.
 *   **3.3.5**
     *   Añadida Exclusión Mejorada de Bots/Rastreadores: Implementada una función para filtrar bots y rastreadores conocidos basándose en las cadenas de User-Agent.
     *   Añadida una configuración en "Ajustes > Configuración AB Test" para activar/desactivar esta función (activada por defecto).

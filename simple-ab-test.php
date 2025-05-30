@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Simple AB Test Redirect
  * Description: Plugin avançado e seguro para múltiplos testes A/B com URLs de gatilho, redirecionamento, logs detalhados, rastreamento de conversões, relatórios gráficos, notificações e auditoria.
- * Version: 3.3.5
+ * Version: 3.3.6
  * Author: Caio Spessoto
  * Text Domain: simple-ab-test-redirect
  * Domain Path: /languages
@@ -82,44 +82,159 @@ function sabtr_meta_box_callback($post) {
     $conversion_url = get_post_meta($post->ID, '_sabtr_conversion_url', true);
     $start_date = get_post_meta($post->ID, '_sabtr_start_date', true);
     $end_date = get_post_meta($post->ID, '_sabtr_end_date', true);
+    $enable_schedule = get_post_meta($post->ID, '_sabtr_enable_schedule', true);
+    if ($enable_schedule === '') {
+        $enable_schedule = '0';
+    }
 
     ?>
+    <style>
+    .sabtr-field-label-group { /* Wrap label and icon */
+        display: flex;
+        align-items: center;
+        gap: 5px; /* Space between label and icon */
+    }
+    .sabtr-info-icon {
+        cursor: help;
+        color: #0073aa; /* WordPress blue */
+        font-size: 18px;
+        text-decoration: none;
+        position: relative; /* For tooltip positioning */
+    }
+    .sabtr-info-icon .sabtr-tooltip-text {
+        visibility: hidden;
+        width: 280px; /* Adjusted width */
+        background-color: #1e1e1e; /* Darker background */
+        color: #fff;
+        text-align: left;
+        border-radius: 4px;
+        padding: 10px; /* Increased padding */
+        position: absolute;
+        z-index: 100; /* Ensure it's above other elements */
+        bottom: 130%; /* Position above the icon */
+        left: 50%;
+        transform: translateX(-50%); /* Centering using transform */
+        opacity: 0;
+        transition: opacity 0.2s ease-in-out, visibility 0.2s ease-in-out; /* Smooth transition */
+        font-size: 12px;
+        line-height: 1.5;
+        font-weight: normal;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+    .sabtr-info-icon:hover .sabtr-tooltip-text,
+    .sabtr-info-icon:focus .sabtr-tooltip-text,
+    .sabtr-info-icon:active .sabtr-tooltip-text { /* Show on hover, focus, or click */
+        visibility: visible;
+        opacity: 1;
+    }
+    .sabtr-info-icon .sabtr-tooltip-text::after { /* Arrow */
+        content: "";
+        position: absolute;
+        top: 100%;
+        left: 50%;
+        margin-left: -5px;
+        border-width: 5px;
+        border-style: solid;
+        border-color: #1e1e1e transparent transparent transparent;
+    }
+    /* Adjustments for placement within WP form structure */
+    .form-table td p {
+        position: relative; /* Helps contain absolutely positioned tooltips if needed */
+    }
+    .form-table td label {
+        display: inline-block; /* Ensure label is treated as a block for alignment */
+        margin-bottom: 3px;
+    }
+    /* If icon is placed directly after the input */
+    input[type="url"] + .sabtr-info-icon,
+    input[type="number"] + .sabtr-info-icon,
+    input[type="date"] + .sabtr-info-icon,
+    input[type="checkbox"] + .sabtr-info-icon {
+        margin-left: 8px;
+        vertical-align: middle; /* Align icon with the middle of the input */
+    }
+    /* Styling for the <small> text if it's used as a wrapper for the icon and tooltip for semantic reasons */
+    .sabtr-tooltip-trigger-wrapper {
+        display: inline-block;
+        vertical-align: middle;
+        margin-left: 5px;
+    }
+    </style>
     <p>
         <label for="sabtr_trigger_url"><strong><?php _e('Página de Gatilho (URL Completa):', 'simple-ab-test-redirect'); ?></strong></label><br>
         <input type="url" id="sabtr_trigger_url" name="sabtr_trigger_url" value="<?php echo esc_url($trigger_url); ?>" size="70" required>
-        <small><?php _e('A URL onde o teste A/B será ativado. Ex: https://seudominio.com/pagina-alvo/', 'simple-ab-test-redirect'); ?></small>
+        <span class="dashicons dashicons-info sabtr-info-icon" tabindex="0">
+            <span class="sabtr-tooltip-text"><?php _e('A URL onde o teste A/B será ativado. Ex: https://seudominio.com/pagina-alvo/', 'simple-ab-test-redirect'); ?></span>
+        </span>
     </p>
     <p>
         <label for="sabtr_url_a"><strong><?php _e('URL da Variante A (Controle - Completa):', 'simple-ab-test-redirect'); ?></strong></label><br>
         <input type="url" id="sabtr_url_a" name="sabtr_url_a" value="<?php echo esc_url($url_a); ?>" size="70">
-        <small><?php _e('Deixe em branco para usar a "Página de Gatilho" como Variante A.', 'simple-ab-test-redirect'); ?></small>
+        <span class="dashicons dashicons-info sabtr-info-icon" tabindex="0">
+            <span class="sabtr-tooltip-text"><?php _e('Deixe em branco para usar a "Página de Gatilho" como Variante A.', 'simple-ab-test-redirect'); ?></span>
+        </span>
     </p>
     <p>
         <label for="sabtr_url_b"><strong><?php _e('URL da Variante B (Variação - Completa):', 'simple-ab-test-redirect'); ?></strong></label><br>
         <input type="url" id="sabtr_url_b" name="sabtr_url_b" value="<?php echo esc_url($url_b); ?>" size="70" required>
-        <small><?php _e('A URL alternativa para o teste.', 'simple-ab-test-redirect'); ?></small>
+        <span class="dashicons dashicons-info sabtr-info-icon" tabindex="0">
+            <span class="sabtr-tooltip-text"><?php _e('A URL alternativa para o teste.', 'simple-ab-test-redirect'); ?></span>
+        </span>
     </p>
     <p>
         <label for="sabtr_percentage_b"><strong><?php _e('Proporção de tráfego para Variante B (%):', 'simple-ab-test-redirect'); ?></strong></label><br>
         <input type="number" id="sabtr_percentage_b" name="sabtr_percentage_b" value="<?php echo esc_attr($percentage_b); ?>" min="0" max="100" required>
-        <small><?php _e('Ex: 50 para dividir o tráfego 50/50. O restante irá para a Variante A.', 'simple-ab-test-redirect'); ?></small>
+        <span class="dashicons dashicons-info sabtr-info-icon" tabindex="0">
+            <span class="sabtr-tooltip-text"><?php _e('Ex: 50 para dividir o tráfego 50/50. O restante irá para a Variante A.', 'simple-ab-test-redirect'); ?></span>
+        </span>
     </p>
     <p>
-        <label for="sabtr_start_date"><strong><?php _e('Data de Início (Opcional):', 'simple-ab-test-redirect'); ?></strong></label><br>
-        <input type="date" id="sabtr_start_date" name="sabtr_start_date" value="<?php echo esc_attr($start_date); ?>" style="width: auto; padding-right:0;">
-        <small><?php _e('Deixe em branco para iniciar o teste imediatamente após a publicação. O teste só será ativado a partir desta data.', 'simple-ab-test-redirect'); ?></small>
+        <label for="sabtr_enable_schedule"><strong><?php _e('Agendar Teste?', 'simple-ab-test-redirect'); ?></strong></label>
+        <input type="checkbox" id="sabtr_enable_schedule" name="sabtr_enable_schedule" value="1" <?php checked($enable_schedule, '1'); ?>>
+        <span class="dashicons dashicons-info sabtr-info-icon" tabindex="0">
+            <span class="sabtr-tooltip-text"><?php _e('Marque para definir datas de início e/ou término para este teste. Se desmarcado, as datas abaixo serão ignoradas e o teste usará as datas apenas se este campo estiver ativo.', 'simple-ab-test-redirect'); ?></span>
+        </span>
     </p>
-    <p>
-        <label for="sabtr_end_date"><strong><?php _e('Data de Término (Opcional):', 'simple-ab-test-redirect'); ?></strong></label><br>
-        <input type="date" id="sabtr_end_date" name="sabtr_end_date" value="<?php echo esc_attr($end_date); ?>" style="width: auto; padding-right:0;">
-        <small><?php _e('Deixe em branco para que o teste não tenha uma data de término específica. O teste será desativado após esta data.', 'simple-ab-test-redirect'); ?></small>
-    </p>
+    <div id="sabtr-schedule-fields-wrapper" style="<?php echo ($enable_schedule === '1' ? '' : 'display:none;'); ?>">
+        <p> <!-- Start Date field paragraph -->
+            <label for="sabtr_start_date"><strong><?php _e('Data de Início (Opcional):', 'simple-ab-test-redirect'); ?></strong></label><br>
+            <input type="date" id="sabtr_start_date" name="sabtr_start_date" value="<?php echo esc_attr($start_date); ?>" style="width: auto; padding-right:0;">
+            <span class="dashicons dashicons-info sabtr-info-icon" tabindex="0">
+                <span class="sabtr-tooltip-text"><?php _e('Se o agendamento estiver ativo, defina uma data para o início do teste. Deixe em branco para iniciar assim que publicado (se dentro do período agendado). O teste só será ativado a partir desta data.', 'simple-ab-test-redirect'); ?></span>
+            </span>
+        </p>
+        <p> <!-- End Date field paragraph -->
+            <label for="sabtr_end_date"><strong><?php _e('Data de Término (Opcional):', 'simple-ab-test-redirect'); ?></strong></label><br>
+            <input type="date" id="sabtr_end_date" name="sabtr_end_date" value="<?php echo esc_attr($end_date); ?>" style="width: auto; padding-right:0;">
+            <span class="dashicons dashicons-info sabtr-info-icon" tabindex="0">
+                <span class="sabtr-tooltip-text"><?php _e('Se o agendamento estiver ativo, defina uma data para o término do teste. Deixe em branco para que não haja data de término específica. O teste será desativado após esta data.', 'simple-ab-test-redirect'); ?></span>
+            </span>
+        </p>
+    </div>
     <hr>
     <p>
         <label for="sabtr_conversion_url"><strong><?php _e('URL de Conversão (Opcional - Completa):', 'simple-ab-test-redirect'); ?></strong></label><br>
         <input type="url" id="sabtr_conversion_url" name="sabtr_conversion_url" value="<?php echo esc_url($conversion_url); ?>" size="70">
-        <small><?php _e('A URL que, ao ser visitada, registra uma conversão para a variante que o usuário viu. Ex: página de agradecimento.', 'simple-ab-test-redirect'); ?></small>
+        <span class="dashicons dashicons-info sabtr-info-icon" tabindex="0">
+            <span class="sabtr-tooltip-text"><?php _e('A URL que, ao ser visitada, registra uma conversão para a variante que o usuário viu. Ex: página de agradecimento.', 'simple-ab-test-redirect'); ?></span>
+        </span>
     </p>
+    <script type="text/javascript">
+    (function() {
+        const enableScheduleCheckbox = document.getElementById('sabtr_enable_schedule');
+        const scheduleFieldsWrapper = document.getElementById('sabtr-schedule-fields-wrapper');
+
+        if (enableScheduleCheckbox && scheduleFieldsWrapper) {
+            enableScheduleCheckbox.addEventListener('change', function() {
+                if (this.checked) {
+                    scheduleFieldsWrapper.style.display = '';
+                } else {
+                    scheduleFieldsWrapper.style.display = 'none';
+                }
+            });
+        }
+    })();
+    </script>
     <?php
 }
 
@@ -144,6 +259,12 @@ function sabtr_save_meta($post_id) {
 
     if (isset($_POST['sabtr_percentage_b'])) {
         update_post_meta($post_id, '_sabtr_percentage_b', intval($_POST['sabtr_percentage_b']));
+    }
+
+    if (isset($_POST['sabtr_enable_schedule'])) {
+        update_post_meta($post_id, '_sabtr_enable_schedule', '1');
+    } else {
+        update_post_meta($post_id, '_sabtr_enable_schedule', '0');
     }
 
     // Handle Start Date
