@@ -80,6 +80,8 @@ function sabtr_meta_box_callback($post) {
     $url_b = get_post_meta($post->ID, '_sabtr_url_b', true);
     $percentage_b = intval(get_post_meta($post->ID, '_sabtr_percentage_b', true) ?: 50);
     $conversion_url = get_post_meta($post->ID, '_sabtr_conversion_url', true);
+    $start_date = get_post_meta($post->ID, '_sabtr_start_date', true);
+    $end_date = get_post_meta($post->ID, '_sabtr_end_date', true);
 
     ?>
     <p>
@@ -101,6 +103,16 @@ function sabtr_meta_box_callback($post) {
         <label for="sabtr_percentage_b"><strong><?php _e('Proporção de tráfego para Variante B (%):', 'simple-ab-test-redirect'); ?></strong></label><br>
         <input type="number" id="sabtr_percentage_b" name="sabtr_percentage_b" value="<?php echo esc_attr($percentage_b); ?>" min="0" max="100" required>
         <small><?php _e('Ex: 50 para dividir o tráfego 50/50. O restante irá para a Variante A.', 'simple-ab-test-redirect'); ?></small>
+    </p>
+    <p>
+        <label for="sabtr_start_date"><strong><?php _e('Data de Início (Opcional):', 'simple-ab-test-redirect'); ?></strong></label><br>
+        <input type="date" id="sabtr_start_date" name="sabtr_start_date" value="<?php echo esc_attr($start_date); ?>" style="width: auto; padding-right:0;">
+        <small><?php _e('Deixe em branco para iniciar o teste imediatamente após a publicação. O teste só será ativado a partir desta data.', 'simple-ab-test-redirect'); ?></small>
+    </p>
+    <p>
+        <label for="sabtr_end_date"><strong><?php _e('Data de Término (Opcional):', 'simple-ab-test-redirect'); ?></strong></label><br>
+        <input type="date" id="sabtr_end_date" name="sabtr_end_date" value="<?php echo esc_attr($end_date); ?>" style="width: auto; padding-right:0;">
+        <small><?php _e('Deixe em branco para que o teste não tenha uma data de término específica. O teste será desativado após esta data.', 'simple-ab-test-redirect'); ?></small>
     </p>
     <hr>
     <p>
@@ -132,6 +144,31 @@ function sabtr_save_meta($post_id) {
 
     if (isset($_POST['sabtr_percentage_b'])) {
         update_post_meta($post_id, '_sabtr_percentage_b', intval($_POST['sabtr_percentage_b']));
+    }
+
+    // Handle Start Date
+    if (isset($_POST['sabtr_start_date'])) {
+        $start_date_input = sanitize_text_field(wp_unslash($_POST['sabtr_start_date']));
+        if (preg_match("/^[0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$/", $start_date_input) || empty($start_date_input)) {
+            update_post_meta($post_id, '_sabtr_start_date', $start_date_input);
+        } else {
+            update_post_meta($post_id, '_sabtr_start_date', '');
+        }
+    }
+
+    // Handle End Date
+    if (isset($_POST['sabtr_end_date'])) {
+        $end_date_input = sanitize_text_field(wp_unslash($_POST['sabtr_end_date']));
+        if (preg_match("/^[0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$/", $end_date_input) || empty($end_date_input)) {
+            $start_date = get_post_meta($post_id, '_sabtr_start_date', true);
+            if (!empty($start_date) && !empty($end_date_input) && strtotime($end_date_input) < strtotime($start_date)) {
+                update_post_meta($post_id, '_sabtr_end_date', '');
+            } else {
+                update_post_meta($post_id, '_sabtr_end_date', $end_date_input);
+            }
+        } else {
+            update_post_meta($post_id, '_sabtr_end_date', '');
+        }
     }
 }
 
@@ -249,11 +286,51 @@ function sabtr_handle_redirects_and_conversions() {
         return;
     }
 
+    $current_date_ymd = current_time('Y-m-d');
     $tests = get_posts(array(
         'post_type' => 'ab_test',
         'posts_per_page' => -1,
         'post_status' => 'publish',
-        'suppress_filters' => true
+        'suppress_filters' => true,
+        'meta_query' => array(
+            'relation' => 'AND', // All conditions must be met
+            array(
+                'relation' => 'OR', // Test is active if start date is not set OR current date is on/after start date
+                array(
+                    'key' => '_sabtr_start_date',
+                    'compare' => 'NOT EXISTS', // Start date not set
+                ),
+                array(
+                    'key' => '_sabtr_start_date',
+                    'value' => '', // Start date is explicitly empty
+                    'compare' => '=',
+                ),
+                array(
+                    'key' => '_sabtr_start_date',
+                    'value' => $current_date_ymd,
+                    'compare' => '<=', // Current date is on or after start date
+                    'type' => 'DATE',
+                )
+            ),
+            array(
+                'relation' => 'OR', // Test is active if end date is not set OR current date is on/before end date
+                array(
+                    'key' => '_sabtr_end_date',
+                    'compare' => 'NOT EXISTS', // End date not set
+                ),
+                array(
+                    'key' => '_sabtr_end_date',
+                    'value' => '', // End date is explicitly empty
+                    'compare' => '=',
+                ),
+                array(
+                    'key' => '_sabtr_end_date',
+                    'value' => $current_date_ymd,
+                    'compare' => '>=', // Current date is on or before end date
+                    'type' => 'DATE',
+                )
+            )
+        )
     ));
 
     if (empty($tests)) {
@@ -766,6 +843,9 @@ function sabtr_render_report_page() {
     echo '<table class="widefat fixed striped sabtr-report-table">';
     echo '<thead><tr>';
     echo '<th>' . esc_html__('Teste (ID)', 'simple-ab-test-redirect') . '</th>';
+    echo '<th>' . esc_html__('Status', 'simple-ab-test-redirect') . '</th>';
+    echo '<th>' . esc_html__('Data Início Agendada', 'simple-ab-test-redirect') . '</th>';
+    echo '<th>' . esc_html__('Data Fim Agendada', 'simple-ab-test-redirect') . '</th>';
     echo '<th>' . esc_html__('Started', 'simple-ab-test-redirect') . '</th>';
     echo '<th>' . esc_html__('Duration', 'simple-ab-test-redirect') . '</th>';
     echo '<th>' . esc_html__('Página Gatilho', 'simple-ab-test-redirect') . '</th>';
@@ -787,8 +867,28 @@ function sabtr_render_report_page() {
     foreach ($tests as $test_post) {
         $test_id = $test_post->ID;
         $test_title = get_the_title($test_id);
-        $test_start_date = get_the_date('Y-m-d', $test_id);
-        $duration_days = round((time() - strtotime($test_start_date)) / DAY_IN_SECONDS);
+
+        $start_date_meta = get_post_meta($test_id, '_sabtr_start_date', true);
+        $end_date_meta = get_post_meta($test_id, '_sabtr_end_date', true);
+        $current_date_time = current_time('timestamp');
+        $current_date_ymd = date('Y-m-d', $current_date_time);
+
+        $status_text = __('Ativo', 'simple-ab-test-redirect');
+        $status_class = 'sabtr-status-active';
+
+        if (!empty($start_date_meta) && $current_date_ymd < $start_date_meta) {
+            $status_text = __('Agendado', 'simple-ab-test-redirect');
+            $status_class = 'sabtr-status-scheduled';
+        } elseif (!empty($end_date_meta) && $current_date_ymd > $end_date_meta) {
+            $status_text = __('Expirado', 'simple-ab-test-redirect');
+            $status_class = 'sabtr-status-expired';
+        }
+
+        $start_date_display = !empty($start_date_meta) ? date_i18n(get_option('date_format'), strtotime($start_date_meta)) : __('Imediato', 'simple-ab-test-redirect');
+        $end_date_display = !empty($end_date_meta) ? date_i18n(get_option('date_format'), strtotime($end_date_meta)) : __('Sem Fim', 'simple-ab-test-redirect');
+
+        $test_start_date_actual = get_the_date('Y-m-d', $test_id); // Actual post creation date, used for duration
+        $duration_days = round((time() - strtotime($test_start_date_actual)) / DAY_IN_SECONDS);
 
         $trigger_url_meta = get_post_meta($test_id, '_sabtr_trigger_url', true);
         $url_a_config_meta = get_post_meta($test_id, '_sabtr_url_a', true);
@@ -849,7 +949,10 @@ function sabtr_render_report_page() {
 
         echo '<tr>';
         echo '<td><strong><a href="'.get_edit_post_link($test_id).'">' . esc_html($test_title) . '</a></strong> (' . esc_html($test_id) . ')</td>';
-        echo '<td>' . esc_html($test_start_date) . '</td>';
+        echo '<td><span class="' . esc_attr($status_class) . '">' . esc_html($status_text) . '</span></td>';
+        echo '<td>' . esc_html($start_date_display) . '</td>';
+        echo '<td>' . esc_html($end_date_display) . '</td>';
+        echo '<td>' . esc_html($test_start_date_actual) . '</td>';
         echo '<td>' . sprintf(esc_html__('%d days', 'simple-ab-test-redirect'), $duration_days) . '</td>';
         echo '<td>' . ($trigger_url_display ? '<a href="'.esc_url($trigger_url_display).'" target="_blank" title="'.esc_attr($trigger_url_display).'">'.esc_html(wp_html_excerpt($trigger_url_display, 30, '&hellip;')).'</a>' : '&mdash;') . '</td>';
         echo '<td>' . ($url_a_config_meta ? '<a href="'.esc_url($url_a_config_meta).'" target="_blank" title="'.esc_attr($url_a_config_meta).'">'.esc_html(wp_html_excerpt($url_a_config_meta, 30, '&hellip;')).'</a>' : esc_html($url_a_display)) . '</td>';
@@ -930,6 +1033,15 @@ function sabtr_render_report_page() {
         .sabtr-uplift-positive { color: #28a745; font-weight: bold; }
         .sabtr-uplift-negative { color: #dc3545; font-weight: bold; }
         .sabtr-uplift-neutral { color: #6c757d; }
+        .sabtr-status-active { color: #28a745; font-weight: bold; } /* Green */
+        .sabtr-status-scheduled { color: #17a2b8; } /* Teal/Blue */
+        .sabtr-status-expired { color: #dc3545; } /* Red */
+        .sabtr-status-active::before, .sabtr-status-scheduled::before, .sabtr-status-expired::before {
+            content: '\25CF'; /* Circle character */
+            margin-right: 6px;
+            font-size: 1.2em;
+            vertical-align: middle;
+        }
         #sabtr-logs-modal .sabtr-logs-container { max-height: 250px; overflow-y: auto; border: 1px solid #ddd; margin-top: 10px; padding: 10px; background: #fff; }
         #sabtr-logs-modal table { margin-top: 0; }
         #sabtr-logs-modal table td, #sabtr-logs-modal table th { font-size: 12px; padding: 6px 8px; }

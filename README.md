@@ -10,7 +10,7 @@
 **Tags:** a/b test, ab test, split test, marketing, optimization, wordpress, redirect, trigger url, conversion tracking, reports
 **Requires at least:** 6.0.0
 **Tested up to:** 6.8.1
-**Stable tag:** 3.3.3
+**Stable tag:** 3.3.4
 **License:** GPLv2 or later
 **License URI:** https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -23,6 +23,7 @@ Simple AB Test Redirect is an advanced and secure WordPress plugin designed to e
 ### Key Features
 
 *   **Multiple A/B tests:** Run several experiments simultaneously to optimize different aspects of your site.
+*   **Test Scheduling:** Set optional Start and End dates for your A/B tests.
 *   **Trigger URLs:** Specify precisely which page/URL will activate your A/B test.
 *   **Redirection:** Seamlessly redirect users to different variations based on test conditions.
 *   **Detailed logs:** Keep a comprehensive record of test activities, user interactions, and corrections.
@@ -56,6 +57,8 @@ Once the plugin is activated, you should find a "Simple AB Test Redirect" menu i
     *   **Page A URL (Control):** Enter the full URL for the original version of your page (e.g., `https://www.yoursite.com/your-page-version-a`). This is your control.
     *   **Page B URL (Variation):** Enter the full URL for the variation page you want to test against Page A (e.g., `https://www.yoursite.com/your-page-version-b`).
     *   **Traffic to Page B (%):** Use the slider or input field to set the percentage of visitors who will be directed to Page B. The default is 50%.
+    *   **Start Date (Optional):** Set a specific date for the test to begin. If left blank, the test will start as soon as it's published (and active according to its schedule).
+    *   **End Date (Optional):** Set a specific date for the test to end. If left blank, the test will run indefinitely until manually stopped or if an end date is set later. The test will not run after this date.
     *   **Conversion Link:** Enter the full URL that signifies a successful conversion for this test. This could be a thank-you page after a form submission, a purchase confirmation page, etc. (e.g., `https://www.yoursite.com/thank-you`).
 4.  Save your test configuration.
 
@@ -78,7 +81,7 @@ Available options include:
 ### Viewing Results:
 
 1.  Go to the **Simple AB Test Redirect Dashboard** (likely within the "Simple AB Test Redirect" menu).
-2.  Here, you will find data on the number of visits, conversions, and graphical reports for both Page A and Page B for your active tests.
+2.  Here, you will find data on the number of visits, conversions, and graphical reports for both Page A and Page B for your active tests. The report table also includes columns for 'Status' (e.g., Active, Scheduled, Expired), 'Scheduled Start', and 'Scheduled End' to help you track the active periods of your tests.
 
 ## Frequently Asked Questions (FAQ)
 
@@ -109,6 +112,10 @@ Available options include:
 
 ## Changelog
 
+*   **3.3.4**
+    *   Added Test Scheduling: Users can now set optional Start and End dates for A/B tests.
+    *   Tests will only run if the current date is within their scheduled period.
+    *   Report page now displays "Status", "Scheduled Start", and "Scheduled End" for each test.
 *   **3.3.3**
     *   Enhanced A/B test dashboard:
         *   Added new data columns: "Started", "Duration", "Uplift (B vs A)", "Last Activity".
@@ -133,7 +140,7 @@ caio.spessoto@hotmail.com
 **Tags:** teste a/b, ab test, split test, marketing, otimização, wordpress, redirecionamento, url gatilho, rastreamento de conversão, relatórios
 **Requires at least:** 6.0.0
 **Tested up to:** 6.8.1
-**Stable tag:** 3.3.3
+**Stable tag:** 3.3.4
 **License:** GPLv2 ou posterior
 **License URI:** https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -146,6 +153,7 @@ Simple AB Test Redirect é um plugin WordPress avançado e seguro, projetado par
 ### Principais Funcionalidades
 
 *   **Múltiplos testes A/B:** Execute vários experimentos simultaneamente para otimizar diferentes aspectos do seu site.
+*   **Agendamento de Testes:** Defina datas de Início e Término opcionais para seus testes A/B.
 *   **URLs de Gatilho:** Especifique precisamente qual página/URL ativará seu teste A/B.
 *   **Redirecionamento:** Redirecione usuários de forma transparente para diferentes variações com base nas condições do teste.
 *   **Logs Detalhados:** Mantenha um registro abrangente das atividades de teste, interações do usuário e correções.
@@ -179,6 +187,8 @@ Assim que o plugin for ativado, você deverá encontrar um menu "Simple AB Test 
     *   **URL da Página A (Controle):** Insira a URL completa para a versão original da sua página (ex: `https://www.seusite.com/sua-pagina-versao-a`). Este é o seu controle.
     *   **URL da Página B (Variação):** Insira a URL completa para a página de variação que você quer testar contra a Página A (ex: `https://www.seusite.com/sua-pagina-versao-b`).
     *   **Tráfego para Página B (%):** Use o controle deslizante ou campo de entrada para definir a porcentagem de visitantes que serão direcionados para a Página B. O padrão é 50%.
+    *   **Data de Início (Opcional):** Defina uma data específica para o início do teste. Se deixado em branco, o teste começará assim que for publicado (e ativo conforme sua programação).
+    *   **Data de Término (Opcional):** Defina uma data específica para o término do teste. Se deixado em branco, o teste será executado indefinidamente até ser interrompido manualmente ou se uma data de término for definida posteriormente. O teste não será executado após esta data.
     *   **Link de Conversão:** Insira a URL completa que significa uma conversão bem-sucedida para este teste. Esta pode ser uma página de agradecimento após o envio de um formulário, uma página de confirmação de compra, etc. (ex: `https://www.seusite.com/obrigado`).
 4.  Salve sua configuração de teste.
 
@@ -201,7 +211,7 @@ As opções disponíveis incluem:
 ### Visualizando Resultados:
 
 1.  Vá para o **Dashboard do Simple AB Test Redirect** (provavelmente dentro do menu "Simple AB Test Redirect").
-2.  Aqui, você encontrará dados sobre o número de visitas, conversões e relatórios gráficos tanto para a Página A quanto para a Página B para seus testes ativos.
+2.  Aqui, você encontrará dados sobre o número de visitas, conversões e relatórios gráficos tanto para a Página A quanto para a Página B para seus testes ativos. A tabela de relatórios também inclui colunas para 'Status' (ex: Ativo, Agendado, Expirado), 'Início Agendado' e 'Fim Agendado' para ajudar a rastrear os períodos ativos de seus testes.
 
 ## Perguntas Frequentes (FAQ)
 
@@ -232,6 +242,10 @@ As opções disponíveis incluem:
 
 ## Changelog
 
+*   **3.3.4**
+    *   Adicionado Agendamento de Testes: Usuários agora podem definir datas de Início e Término opcionais para os testes A/B.
+    *   Os testes só serão executados se a data atual estiver dentro do período agendado.
+    *   A página de relatórios agora exibe "Status", "Início Agendado" e "Fim Agendado" para cada teste.
 *   **3.3.3**
     *   Painel de relatórios dos testes A/B aprimorado:
         *   Adicionadas novas colunas de dados: "Iniciado", "Duração", "Uplift (B vs A)", "Última Atividade".
@@ -256,7 +270,7 @@ caio.spessoto@hotmail.com
 **Tags:** prueba a/b, ab test, split test, marketing, optimización, wordpress, redirección, url de activación, seguimiento de conversiones, informes
 **Requires at least:** 6.0.0
 **Tested up to:** 6.8.1
-**Stable tag:** 3.3.3
+**Stable tag:** 3.3.4
 **License:** GPLv2 o posterior
 **License URI:** https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -269,6 +283,7 @@ Simple AB Test Redirect es un plugin de WordPress avanzado y seguro, diseñado p
 ### Características Clave
 
 *   **Múltiples pruebas A/B:** Ejecuta varios experimentos simultáneamente para optimizar diferentes aspectos de tu sitio.
+*   **Programación de Pruebas:** Establece fechas de Inicio y Finalización opcionales para tus pruebas A/B.
 *   **URLs de Activación:** Especifica con precisión qué página/URL activará tu prueba A/B.
 *   **Redirección:** Redirige a los usuarios de forma transparente a diferentes variaciones según las condiciones de la prueba.
 *   **Logs Detallados:** Mantén un registro completo de las actividades de prueba, interacciones de los usuarios y correcciones.
@@ -302,6 +317,8 @@ Una vez que el plugin esté activado, deberías encontrar un menú "Simple AB Te
     *   **URL de la Página A (Control):** Ingresa la URL completa de la versión original de tu página (por ejemplo, `https://www.tusitio.com/tu-pagina-version-a`). Este es tu control.
     *   **URL de la Página B (Variación):** Ingresa la URL completa de la página de variación que quieres probar contra la Página A (por ejemplo, `https://www.tusitio.com/tu-pagina-version-b`).
     *   **Tráfico a la Página B (%):** Usa el control deslizante o el campo de entrada para establecer el porcentaje de visitantes que serán dirigidos a la Página B. El valor predeterminado es 50%.
+    *   **Fecha de Inicio (Opcional):** Establece una fecha específica para que comience la prueba. Si se deja en blanco, la prueba comenzará tan pronto como se publique (y esté activa según su programación).
+    *   **Fecha de Finalización (Opcional):** Establece una fecha específica para que finalice la prueba. Si se deja en blanco, la prueba se ejecutará indefinidamente hasta que se detenga manualmente o si se establece una fecha de finalización más tarde. La prueba no se ejecutará después de esta fecha.
     *   **Enlace de Conversión:** Ingresa la URL completa que significa una conversión exitosa para esta prueba. Podría ser una página de agradecimiento después de enviar un formulario, una página de confirmación de compra, etc. (por ejemplo, `https://www.tusitio.com/gracias`).
 4.  Guarda la configuración de tu prueba.
 
@@ -324,7 +341,7 @@ Las opciones disponibles incluyen:
 ### Viendo Resultados:
 
 1.  Ve al **Dashboard de Simple AB Test Redirect** (probablemente dentro del menú "Simple AB Test Redirect").
-2.  Aquí encontrarás datos sobre el número de visitas, conversiones e informes gráficos tanto para la Página A como para la Página B para tus pruebas activas.
+2.  Aquí encontrarás datos sobre el número de visitas, conversiones e informes gráficos tanto para la Página A como para la Página B para tus pruebas activas. La tabla de informes también incluye columnas para 'Estado' (ej: Activo, Programado, Expirado), 'Inicio Programado' y 'Final Programado' para ayudarte a rastrear los períodos activos de tus pruebas.
 
 ## Preguntas Frecuentes (FAQ)
 
@@ -355,6 +372,10 @@ Las opciones disponibles incluyen:
 
 ## Changelog
 
+*   **3.3.4**
+    *   Añadida Programación de Pruebas: Los usuarios ahora pueden establecer fechas de Inicio y Finalización opcionales para las pruebas A/B.
+    *   Las pruebas solo se ejecutarán si la fecha actual está dentro de su período programado.
+    *   La página de informes ahora muestra "Estado", "Inicio Programado" y "Final Programado" para cada prueba.
 *   **3.3.3**
     *   Panel de informes de pruebas A/B mejorado:
         *   Añadidas nuevas columnas de datos: "Iniciado", "Duración", "Uplift (B vs A)", "Última Actividad".
@@ -364,8 +385,8 @@ Las opciones disponibles incluyen:
 *   **3.3.2**
     *   README.md inicial detallado con soporte multilingüe.
     *   Nombre del plugin actualizado a Simple AB Test Redirect.
-    *   Añadidas nuevas características: múltiples pruebas, redirección, logs detallados, informes gráficos, notificaciones, auditoría, ajustes configurables, filtros para desarrolladores.
-    *   Instrucciones de uso y FAQ mejoradas.
+    *   Añadidas nuevas características: múltiples pruebas, redirecionamento, logs detalhados, relatórios gráficos, notificações, auditoria, configurações ajustáveis, filtros para desenvolvedores.
+    *   Instruções de uso e FAQ aprimoradas.
 
 ## Soporte
 
