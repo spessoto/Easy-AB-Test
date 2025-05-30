@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Simple AB Test Redirect
  * Description: Plugin avançado e seguro para múltiplos testes A/B com URLs de gatilho, redirecionamento, logs detalhados, rastreamento de conversões, relatórios gráficos, notificações e auditoria.
- * Version: 3.3.3
+ * Version: 3.3.5
  * Author: Caio Spessoto
  * Text Domain: simple-ab-test-redirect
  * Domain Path: /languages
@@ -460,6 +460,21 @@ function sabtr_handle_redirects_and_conversions() {
 }
 
 function sabtr_log_access($test_id, $variant, $is_correction = false) {
+    // Bot Exclusion Check
+    if (get_option('sabtr_enable_bot_exclusion', true)) {
+        $user_agent_to_check = isset($_SERVER['HTTP_USER_AGENT']) ? sanitize_textarea_field(wp_unslash($_SERVER['HTTP_USER_AGENT'])) : '';
+        if (!empty($user_agent_to_check)) {
+            $bot_patterns = sabtr_get_bot_user_agent_patterns();
+            foreach ($bot_patterns as $pattern) {
+                if (stripos($user_agent_to_check, $pattern) !== false) {
+                    // Optional: Log bot detection for debugging, but not to the main A/B test logs.
+                    // error_log("[SABTR BOT DETECTED] User Agent: " . $user_agent_to_check . " matched pattern: " . $pattern . ". Access not logged for Test ID: " . $test_id);
+                    return; // Exit function early, do not log this access or send notification
+                }
+            }
+        }
+    }
+
     global $wpdb;
     $table_name = $wpdb->prefix . 'ab_test_logs';
     $ip_address = sabtr_get_visitor_ip();
@@ -580,6 +595,27 @@ add_action('before_delete_post', function($post_ID, $post) {
     sabtr_log_audit_action($message);
 }, 10, 2);
 
+function sabtr_get_bot_user_agent_patterns() {
+    return apply_filters('sabtr_bot_user_agent_patterns', array(
+        // Common Search Engine Bots
+        'Googlebot', 'Google-Extended', 'GoogleOther', 'Google-Site-Verification',
+        'AdsBot-Google', 'Mediapartners-Google', 'APIs-Google', 'FeedFetcher-Google',
+        'bingbot', 'MicrosoftPreview', 'adidxbot', 'BingPreview',
+        'Slurp', 'Yahoo! Slurp', 'DuckDuckBot',
+        'Baiduspider', 'Sogou', 'YandexBot', 'YandexImages', 'YandexAccessibility',
+        // Common SEO/Marketing Bots
+        'AhrefsBot', 'SemrushBot', 'MJ12bot', 'DotBot', 'rogerbot',
+        'MegaIndex.ru', 'BLEXBot', 'ZoominfoBot', 'serpstatbot', 'SEOkicks',
+        'linkdexbot', 'NetcraftSurveyAgent', 'Dataprovider.com', 'TweetmemeBot',
+        // Monitoring/Uptime Bots
+        'UptimeRobot', 'Site24x7', 'StatusCake', 'Pingdom',
+        // Other common crawlers/bots
+        'PaperLiBot', 'Wget', 'curl', 'Python-urllib', 'WordPress/', 'facebookexternalhit',
+        'LinkedInBot', 'Twitterbot', 'Slackbot', 'Discordbot', 'TelegramBot',
+        'PetalBot', 'Bytespider'
+        // Add more as needed, keep it reasonably sized
+    ));
+}
 
 /* -----------------------------
  * 7. Configurações do Plugin (Admin Page)
@@ -598,6 +634,7 @@ function sabtr_register_settings() {
     register_setting('sabtr_settings_group', 'sabtr_enable_email_notification', ['type' => 'boolean', 'sanitize_callback' => 'rest_sanitize_boolean', 'default' => true]);
     register_setting('sabtr_settings_group', 'sabtr_enable_audit_log', ['type' => 'boolean', 'sanitize_callback' => 'rest_sanitize_boolean', 'default' => true]);
     register_setting('sabtr_settings_group', 'sabtr_db_log_cleanup_days', ['type' => 'integer', 'sanitize_callback' => 'absint', 'default' => 60]);
+    register_setting('sabtr_settings_group', 'sabtr_enable_bot_exclusion', ['type' => 'boolean', 'sanitize_callback' => 'rest_sanitize_boolean', 'default' => true]);
 }
 
 function sabtr_render_settings_page() {
@@ -644,6 +681,12 @@ function sabtr_render_settings_page() {
                     <th scope="row"><?php _e('Ativar logs de auditoria de administração?', 'simple-ab-test-redirect'); ?></th>
                     <td><input type="checkbox" name="sabtr_enable_audit_log" value="1" <?php checked(1, get_option('sabtr_enable_audit_log', true)); ?> />
                          <p class="description"><?php _e('Registra ações como criação, atualização e exclusão de testes A/B.', 'simple-ab-test-redirect'); ?></p>
+                    </td>
+                </tr>
+                <tr valign="top">
+                    <th scope="row"><?php _e('Ativar Exclusão de Bots/Rastreadores?', 'simple-ab-test-redirect'); ?></th>
+                    <td><input type="checkbox" name="sabtr_enable_bot_exclusion" value="1" <?php checked(1, get_option('sabtr_enable_bot_exclusion', true)); ?> />
+                        <p class="description"><?php _e('Tenta impedir que bots e rastreadores conhecidos (baseado em User-Agent) sejam registrados nas estatísticas do teste A/B.', 'simple-ab-test-redirect'); ?></p>
                     </td>
                 </tr>
                  <tr valign="top">

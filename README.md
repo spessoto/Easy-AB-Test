@@ -10,7 +10,7 @@
 **Tags:** a/b test, ab test, split test, marketing, optimization, wordpress, redirect, trigger url, conversion tracking, reports
 **Requires at least:** 6.0.0
 **Tested up to:** 6.8.1
-**Stable tag:** 3.3.4
+**Stable tag:** 3.3.5
 **License:** GPLv2 or later
 **License URI:** https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -31,7 +31,8 @@ Simple AB Test Redirect is an advanced and secure WordPress plugin designed to e
 *   **Graphical reports:** Visualize test performance with easy-to-understand charts and graphs.
 *   **Notifications:** Receive email alerts for new accesses/conversions (rate-limited).
 *   **Auditing:** Track admin actions (test creation/update/deletion) with logs stored in `wp-content/uploads/sabtr-audit-logs/`.
-*   **Configurable Settings:** Manage email notifications, audit logging, database log retention, and plugin data reset via **WordPress Admin > Settings > AB Test Config**.
+*   **Bot & Crawler Exclusion:** Helps keep your test data more accurate by attempting to filter out known bot traffic.
+*   **Configurable Settings:** Manage email notifications, audit logging, bot exclusion, database log retention, and plugin data reset via **WordPress Admin > Settings > AB Test Config**.
 *   **Easy to Use:** Designed with simplicity in mind, making advanced A/B testing accessible without needing to code.
 *   **Adjustable Traffic Distribution:** Control the percentage of visitors directed to Page B (defaults to 50%).
 *   **Developer Friendly:** Includes filters like `sabtr_match_query_string_for_tests` for advanced URL matching control.
@@ -69,6 +70,7 @@ Available options include:
 
 *   **Email Notifications:** Enable or disable email alerts. When enabled, the plugin sends notifications for new accesses or conversions to the admin email. These are rate-limited to avoid flooding your inbox.
 *   **Admin Audit Log:** Enable or disable the logging of administrative actions such as test creation, updates, or deletions. Audit logs are stored as `.log` files in the `wp-content/uploads/sabtr-audit-logs/` directory. Files older than 30 days are automatically deleted.
+*   **Enable Bot/Crawler Exclusion:** When checked (default), the plugin attempts to identify and exclude known bots and web crawlers (based on their User-Agent strings) from being recorded in your A/B test statistics (access logs and counts). This helps in keeping your test data cleaner.
 *   **Database Log Retention:** Set the number of days (from 7 to 365, default is 60) that access logs and conversion logs will be kept in the database. Older logs are automatically deleted by a daily cron job.
 *   **Audit Log Management:**
     *   **Download Audit Log:** Download today's audit log file.
@@ -112,6 +114,9 @@ Available options include:
 
 ## Changelog
 
+*   **3.3.5**
+    *   Added Enhanced Bot/Crawler Exclusion: Implemented a feature to filter out known bots and crawlers based on User-Agent strings.
+    *   Added a setting in "Settings > AB Test Config" to enable/disable this feature (enabled by default).
 *   **3.3.4**
     *   Added Test Scheduling: Users can now set optional Start and End dates for A/B tests.
     *   Tests will only run if the current date is within their scheduled period.
@@ -140,7 +145,7 @@ caio.spessoto@hotmail.com
 **Tags:** teste a/b, ab test, split test, marketing, otimização, wordpress, redirecionamento, url gatilho, rastreamento de conversão, relatórios
 **Requires at least:** 6.0.0
 **Tested up to:** 6.8.1
-**Stable tag:** 3.3.4
+**Stable tag:** 3.3.5
 **License:** GPLv2 ou posterior
 **License URI:** https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -161,7 +166,8 @@ Simple AB Test Redirect é um plugin WordPress avançado e seguro, projetado par
 *   **Relatórios Gráficos:** Visualize o desempenho do teste com gráficos fáceis de entender.
 *   **Notificações:** Receba alertas por e-mail para novos acessos/conversões (com limite de taxa).
 *   **Auditoria:** Acompanhe as ações administrativas (criação/atualização/exclusão de testes) com logs armazenados em `wp-content/uploads/sabtr-audit-logs/`.
-*   **Configurações Ajustáveis:** Gerencie notificações por e-mail, logs de auditoria, retenção de logs do banco de dados e redefinição de dados do plugin via **Painel WordPress > Configurações > AB Test Config**.
+*   **Exclusão de Bots e Rastreadores:** Ajuda a manter os dados do seu teste mais precisos, tentando filtrar o tráfego de bots conhecidos.
+*   **Configurações Ajustáveis:** Gerencie notificações por e-mail, logs de auditoria, exclusão de bots, retenção de logs do banco de dados e redefinição de dados do plugin via **Painel WordPress > Configurações > AB Test Config**.
 *   **Fácil de Usar:** Projetado com a simplicidade em mente, tornando o teste A/B avançado acessível sem necessidade de codificar.
 *   **Distribuição de Tráfego Ajustável:** Controle a porcentagem de visitantes direcionados para a Página B (o padrão é 50%).
 *   **Amigável para Desenvolvedores:** Inclui filtros como `sabtr_match_query_string_for_tests` para controle avançado de correspondência de URL.
@@ -199,6 +205,7 @@ As opções disponíveis incluem:
 
 *   **Notificações por Email:** Ative ou desative alertas por e-mail. Quando ativado, o plugin envia notificações de novos acessos ou conversões para o e-mail do administrador. Elas têm um limite de taxa para evitar sobrecarregar sua caixa de entrada.
 *   **Log de Auditoria do Admin:** Ative ou desative o registro de ações administrativas, como criação, atualizações ou exclusões de testes. Os logs de auditoria são armazenados como arquivos `.log` no diretório `wp-content/uploads/sabtr-audit-logs/`. Arquivos com mais de 30 dias são excluídos automaticamente.
+*   **Ativar Exclusão de Bots/Rastreadores:** Quando marcado (padrão), o plugin tenta identificar e excluir bots e rastreadores da web conhecidos (com base em suas strings de User-Agent) de serem registrados nas estatísticas do seu teste A/B (logs e contagens de acesso). Isso ajuda a manter os dados do seu teste mais limpos.
 *   **Retenção de Logs do Banco de Dados:** Defina o número de dias (de 7 a 365, padrão é 60) que os logs de acesso e conversão serão mantidos no banco de dados. Logs mais antigos são excluídos automaticamente por uma tarefa cron diária.
 *   **Gerenciamento de Logs de Auditoria:**
     *   **Baixar Log de Auditoria:** Baixe o arquivo de log de auditoria do dia atual.
@@ -242,6 +249,9 @@ As opções disponíveis incluem:
 
 ## Changelog
 
+*   **3.3.5**
+    *   Adicionada Exclusão Aprimorada de Bots/Rastreadores: Implementado um recurso para filtrar bots e rastreadores conhecidos com base em strings de User-Agent.
+    *   Adicionada uma configuração em "Configurações > Configuração AB Test" para ativar/desativar este recurso (ativado por padrão).
 *   **3.3.4**
     *   Adicionado Agendamento de Testes: Usuários agora podem definir datas de Início e Término opcionais para os testes A/B.
     *   Os testes só serão executados se a data atual estiver dentro do período agendado.
@@ -270,7 +280,7 @@ caio.spessoto@hotmail.com
 **Tags:** prueba a/b, ab test, split test, marketing, optimización, wordpress, redirección, url de activación, seguimiento de conversiones, informes
 **Requires at least:** 6.0.0
 **Tested up to:** 6.8.1
-**Stable tag:** 3.3.4
+**Stable tag:** 3.3.5
 **License:** GPLv2 o posterior
 **License URI:** https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -291,7 +301,8 @@ Simple AB Test Redirect es un plugin de WordPress avanzado y seguro, diseñado p
 *   **Informes Gráficos:** Visualiza el rendimiento de la prueba con gráficos fáciles de entender.
 *   **Notificaciones:** Recibe alertas por correo electrónico para nuevos accesos/conversiones (con límite de tasa).
 *   **Auditoría:** Realiza un seguimiento de las acciones administrativas (creación/actualización/eliminación de pruebas) con logs almacenados en `wp-content/uploads/sabtr-audit-logs/`.
-*   **Ajustes Configurables:** Gestiona notificaciones por correo electrónico, registro de auditoría, retención de logs de base de datos y restablecimiento de datos del plugin a través de **Escritorio de WordPress > Ajustes > AB Test Config**.
+*   **Exclusión de Bots y Rastreadores:** Ayuda a mantener los datos de sus pruebas más precisos al intentar filtrar el tráfico de bots conocidos.
+*   **Ajustes Configurables:** Gestiona notificaciones por correo electrónico, registro de auditoría, exclusión de bots, retención de logs de base de datos y restablecimiento de datos del plugin a través de **Escritorio de WordPress > Ajustes > AB Test Config**.
 *   **Fácil de Usar:** Diseñado pensando en la simplicidad, haciendo que las pruebas A/B avanzadas sean accesibles sin necesidad de programar.
 *   **Distribución de Tráfico Ajustable:** Controla el porcentaje de visitantes dirigidos a la Página B (el valor predeterminado es 50%).
 *   **Amigable para Desarrolladores:** Incluye filtros como `sabtr_match_query_string_for_tests` para control avanzado de coincidencia de URL.
@@ -329,6 +340,7 @@ Las opciones disponibles incluyen:
 
 *   **Notificaciones por Correo Electrónico:** Habilita o deshabilita las alertas por correo electrónico. Cuando está habilitado, el plugin envía notificaciones de nuevos accesos o conversiones al correo electrónico del administrador. Estas tienen un límite de tasa para evitar inundar tu bandeja de entrada.
 *   **Registro de Auditoría del Admin:** Habilita o deshabilita el registro de acciones administrativas como la creación, actualización o eliminación de pruebas. Los registros de auditoría se almacenan como archivos `.log` en el directorio `wp-content/uploads/sabtr-audit-logs/`. Los archivos con más de 30 días se eliminan automáticamente.
+*   **Activar Exclusión de Bots/Rastreadores:** Cuando está marcado (predeterminado), el plugin intenta identificar y excluir bots y rastreadores web conocidos (basado en sus cadenas de User-Agent) de ser registrados en las estadísticas de su prueba A/B (registros y recuentos de acceso). Esto ayuda a mantener más limpios los datos de su prueba.
 *   **Retención de Logs de la Base de Datos:** Establece el número de días (de 7 a 365, por defecto 60) que los logs de acceso y conversión se mantendrán en la base de datos. Los logs más antiguos se eliminan automáticamente mediante una tarea cron diaria.
 *   **Gestión de Logs de Auditoría:**
     *   **Descargar Log de Auditoría:** Descarga el archivo de log de auditoría del día actual.
@@ -372,6 +384,9 @@ Las opciones disponibles incluyen:
 
 ## Changelog
 
+*   **3.3.5**
+    *   Añadida Exclusión Mejorada de Bots/Rastreadores: Implementada una función para filtrar bots y rastreadores conocidos basándose en las cadenas de User-Agent.
+    *   Añadida una configuración en "Ajustes > Configuración AB Test" para activar/desactivar esta función (activada por defecto).
 *   **3.3.4**
     *   Añadida Programación de Pruebas: Los usuarios ahora pueden establecer fechas de Inicio y Finalización opcionales para las pruebas A/B.
     *   Las pruebas solo se ejecutarán si la fecha actual está dentro de su período programado.
