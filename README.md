@@ -25,13 +25,15 @@ Simple AB Test Redirect is an advanced and secure WordPress plugin designed to e
 *   **Multiple A/B tests:** Run several experiments simultaneously to optimize different aspects of your site.
 *   **Trigger URLs:** Specify precisely which page/URL will activate your A/B test.
 *   **Redirection:** Seamlessly redirect users to different variations based on test conditions.
-*   **Detailed logs:** Keep a comprehensive record of test activities and user interactions.
+*   **Detailed logs:** Keep a comprehensive record of test activities, user interactions, and corrections.
 *   **Conversion Tracking:** Define specific conversion links (e.g., a thank-you page) to measure the success of each variation.
 *   **Graphical reports:** Visualize test performance with easy-to-understand charts and graphs.
-*   **Notifications:** Receive updates and alerts about your A/B tests.
-*   **Auditing:** Track changes and maintain a history of your test configurations.
+*   **Notifications:** Receive email alerts for new accesses/conversions (rate-limited).
+*   **Auditing:** Track admin actions (test creation/update/deletion) with logs stored in `wp-content/uploads/sabtr-audit-logs/`.
+*   **Configurable Settings:** Manage email notifications, audit logging, database log retention, and plugin data reset via **WordPress Admin > Settings > AB Test Config**.
 *   **Easy to Use:** Designed with simplicity in mind, making advanced A/B testing accessible without needing to code.
 *   **Adjustable Traffic Distribution:** Control the percentage of visitors directed to Page B (defaults to 50%).
+*   **Developer Friendly:** Includes filters like `sabtr_match_query_string_for_tests` for advanced URL matching control.
 
 ## Installation
 
@@ -43,7 +45,7 @@ Simple AB Test Redirect is an advanced and secure WordPress plugin designed to e
 
 ## How to Use (Getting Started)
 
-Once the plugin is activated, you should find a "Simple AB Test Redirect" menu in your WordPress admin area.
+Once the plugin is activated, you should find a "Simple AB Test Redirect" menu in your WordPress admin area for creating and managing tests, and a settings page.
 
 ### Setting up your first A/B Test:
 
@@ -57,6 +59,22 @@ Once the plugin is activated, you should find a "Simple AB Test Redirect" menu i
     *   **Conversion Link:** Enter the full URL that signifies a successful conversion for this test. This could be a thank-you page after a form submission, a purchase confirmation page, etc. (e.g., `https://www.yoursite.com/thank-you`).
 4.  Save your test configuration.
 
+### Plugin Settings (Configuration)
+
+Configure the plugin's behavior by navigating to **WordPress Admin > Settings > AB Test Config**.
+Available options include:
+
+*   **Email Notifications:** Enable or disable email alerts. When enabled, the plugin sends notifications for new accesses or conversions to the admin email. These are rate-limited to avoid flooding your inbox.
+*   **Admin Audit Log:** Enable or disable the logging of administrative actions such as test creation, updates, or deletions. Audit logs are stored as `.log` files in the `wp-content/uploads/sabtr-audit-logs/` directory. Files older than 30 days are automatically deleted.
+*   **Database Log Retention:** Set the number of days (from 7 to 365, default is 60) that access logs and conversion logs will be kept in the database. Older logs are automatically deleted by a daily cron job.
+*   **Audit Log Management:**
+    *   **Download Audit Log:** Download today's audit log file.
+    *   **Clear All Audit Logs:** Permanently delete all audit log files from the server.
+*   **Plugin Data Reset:**
+    *   **Clear My Cookies:** Deletes plugin-specific cookies from your browser, which track the variant assigned to you and any conversions you've made. Useful for testing your A/B tests as if you were a new visitor.
+    *   **Clear Notification Transients:** Clears stored notification flags in WordPress. This can help if you believe notifications are stuck or not sending correctly.
+    *   Note: These actions do not delete any A/B tests or collected log data from the database or audit log files.
+
 ### Viewing Results:
 
 1.  Go to the **Simple AB Test Redirect Dashboard** (likely within the "Simple AB Test Redirect" menu).
@@ -68,8 +86,16 @@ Once the plugin is activated, you should find a "Simple AB Test Redirect" menu i
     *   Currently, Simple AB Test Redirect is designed for A/B testing, meaning one control (Page A) and one variation (Page B) per test. Support for multiple variations might be considered for future releases.
 *   **How long should I run my A/B test?**
     *   The ideal duration depends on your website traffic. You need enough data to make a statistically significant decision. This could range from a few days to several weeks. Utilize the detailed logs and graphical reports to monitor progress.
+*   **Does this plugin calculate statistical significance for A/B test results?**
+    *   No, Simple AB Test Redirect provides the raw data for visits and conversions for each variant. For determining statistical significance, it's recommended to use this data with external statistical calculators or tools.
 *   **What kind of pages can I test?**
     *   You can test any page on your WordPress site as long as you can provide distinct URLs for Page A, Page B, the trigger, and the conversion link.
+*   **How does the plugin match Trigger and Conversion URLs? Can I control if query strings are included?**
+    *   By default, the plugin normalizes URLs by comparing paths and ignoring query strings (e.g., `?utm_source=...`). For advanced use, developers can use the `sabtr_match_query_string_for_tests` filter to change this behavior and include query strings in the matching logic.
+*   **What happens if a visitor somehow lands on a different variation page than the one they were assigned?**
+    *   The plugin uses cookies to remember the variant assigned to a visitor for a specific test. If a visitor with an assigned variant lands on the trigger URL again, or even the URL of the *other* variant, the plugin will attempt to redirect them back to their originally assigned variant's URL. This "correction logic" helps maintain the integrity of the test groups. Accesses that required such correction are logged specially (e.g., "Corrected access to variant A").
+*   **Where are logs stored and are they cleaned up?**
+    *   Admin actions (audit logs) are logged to files in `wp-content/uploads/sabtr-audit-logs/` and are automatically cleaned up after 30 days. Test access and conversion data (visitor logs) are stored in custom database tables and are automatically cleaned up based on the retention period you set in **Settings > AB Test Config** (default is 60 days).
 *   **Does this plugin affect site speed?**
     *   Simple AB Test Redirect is designed to be lightweight and efficient. The redirection and logging mechanisms are optimized for minimal performance impact. However, like any plugin, it adds some processing. It's always good practice to monitor site performance.
 
@@ -78,6 +104,7 @@ Once the plugin is activated, you should find a "Simple AB Test Redirect" menu i
 *(It is highly recommended to add screenshots here once the plugin interface is finalized. Good screenshots would include:)*
 *   *The A/B test setup screen showing new options like trigger URLs.*
 *   *The results dashboard with graphical reports and detailed logs.*
+*   *The "AB Test Config" settings page.*
 *   *The notification or auditing interface, if applicable.*
 
 ## Changelog
@@ -85,7 +112,8 @@ Once the plugin is activated, you should find a "Simple AB Test Redirect" menu i
 *   **3.3.2**
     *   Initial detailed README.md with multilingual support.
     *   Updated plugin name to Simple AB Test Redirect.
-    *   Added new features: multiple tests, redirection, detailed logs, graphical reports, notifications, auditing.
+    *   Added new features: multiple tests, redirection, detailed logs, graphical reports, notifications, auditing, configurable settings, developer filters.
+    *   Enhanced FAQ and usage instructions.
 
 ## Support
 
@@ -114,13 +142,15 @@ Simple AB Test Redirect é um plugin WordPress avançado e seguro, projetado par
 *   **Múltiplos testes A/B:** Execute vários experimentos simultaneamente para otimizar diferentes aspectos do seu site.
 *   **URLs de Gatilho:** Especifique precisamente qual página/URL ativará seu teste A/B.
 *   **Redirecionamento:** Redirecione usuários de forma transparente para diferentes variações com base nas condições do teste.
-*   **Logs Detalhados:** Mantenha um registro abrangente das atividades de teste e interações do usuário.
+*   **Logs Detalhados:** Mantenha um registro abrangente das atividades de teste, interações do usuário e correções.
 *   **Rastreamento de Conversão:** Defina links de conversão específicos (ex: uma página de agradecimento) para medir o sucesso de cada variação.
 *   **Relatórios Gráficos:** Visualize o desempenho do teste com gráficos fáceis de entender.
-*   **Notificações:** Receba atualizações e alertas sobre seus testes A/B.
-*   **Auditoria:** Acompanhe as alterações e mantenha um histórico das configurações do seu teste.
+*   **Notificações:** Receba alertas por e-mail para novos acessos/conversões (com limite de taxa).
+*   **Auditoria:** Acompanhe as ações administrativas (criação/atualização/exclusão de testes) com logs armazenados em `wp-content/uploads/sabtr-audit-logs/`.
+*   **Configurações Ajustáveis:** Gerencie notificações por e-mail, logs de auditoria, retenção de logs do banco de dados e redefinição de dados do plugin via **Painel WordPress > Configurações > AB Test Config**.
 *   **Fácil de Usar:** Projetado com a simplicidade em mente, tornando o teste A/B avançado acessível sem necessidade de codificar.
 *   **Distribuição de Tráfego Ajustável:** Controle a porcentagem de visitantes direcionados para a Página B (o padrão é 50%).
+*   **Amigável para Desenvolvedores:** Inclui filtros como `sabtr_match_query_string_for_tests` para controle avançado de correspondência de URL.
 
 ## Instalação
 
@@ -132,7 +162,7 @@ Simple AB Test Redirect é um plugin WordPress avançado e seguro, projetado par
 
 ## Como Usar (Primeiros Passos)
 
-Assim que o plugin for ativado, você deverá encontrar um menu "Simple AB Test Redirect" na sua área de administração do WordPress.
+Assim que o plugin for ativado, você deverá encontrar um menu "Simple AB Test Redirect" na sua área de administração do WordPress para criar e gerenciar testes, e uma página de configurações.
 
 ### Configurando seu primeiro Teste A/B:
 
@@ -146,6 +176,22 @@ Assim que o plugin for ativado, você deverá encontrar um menu "Simple AB Test 
     *   **Link de Conversão:** Insira a URL completa que significa uma conversão bem-sucedida para este teste. Esta pode ser uma página de agradecimento após o envio de um formulário, uma página de confirmação de compra, etc. (ex: `https://www.seusite.com/obrigado`).
 4.  Salve sua configuração de teste.
 
+### Configurações do Plugin (Configuração)
+
+Configure o comportamento do plugin navegando até **Painel WordPress > Configurações > AB Test Config**.
+As opções disponíveis incluem:
+
+*   **Notificações por Email:** Ative ou desative alertas por e-mail. Quando ativado, o plugin envia notificações de novos acessos ou conversões para o e-mail do administrador. Elas têm um limite de taxa para evitar sobrecarregar sua caixa de entrada.
+*   **Log de Auditoria do Admin:** Ative ou desative o registro de ações administrativas, como criação, atualizações ou exclusões de testes. Os logs de auditoria são armazenados como arquivos `.log` no diretório `wp-content/uploads/sabtr-audit-logs/`. Arquivos com mais de 30 dias são excluídos automaticamente.
+*   **Retenção de Logs do Banco de Dados:** Defina o número de dias (de 7 a 365, padrão é 60) que os logs de acesso e conversão serão mantidos no banco de dados. Logs mais antigos são excluídos automaticamente por uma tarefa cron diária.
+*   **Gerenciamento de Logs de Auditoria:**
+    *   **Baixar Log de Auditoria:** Baixe o arquivo de log de auditoria do dia atual.
+    *   **Limpar Todos os Logs de Auditoria:** Exclua permanentemente todos os arquivos de log de auditoria do servidor.
+*   **Redefinição de Dados do Plugin:**
+    *   **Limpar Meus Cookies:** Exclui cookies específicos do plugin do seu navegador, que rastreiam a variante atribuída a você e quaisquer conversões que você fez. Útil para testar seus testes A/B como se você fosse um novo visitante.
+    *   **Limpar Transientes de Notificação:** Limpa flags de notificação armazenadas no WordPress. Isso pode ajudar se você acreditar que as notificações estão presas ou não estão sendo enviadas corretamente.
+    *   Nota: Essas ações não excluem nenhum teste A/B ou dados de log coletados do banco de dados ou arquivos de log de auditoria.
+
 ### Visualizando Resultados:
 
 1.  Vá para o **Dashboard do Simple AB Test Redirect** (provavelmente dentro do menu "Simple AB Test Redirect").
@@ -157,8 +203,16 @@ Assim que o plugin for ativado, você deverá encontrar um menu "Simple AB Test 
     *   Atualmente, o Simple AB Test Redirect é projetado para testes A/B, significando um controle (Página A) e uma variação (Página B) por teste. Suporte para múltiplas variações pode ser considerado para versões futuras.
 *   **Por quanto tempo devo executar meu teste A/B?**
     *   A duração ideal depende do tráfego do seu site. Você precisa de dados suficientes para tomar uma decisão estatisticamente significativa. Isso pode variar de alguns dias a várias semanas. Utilize os logs detalhados e relatórios gráficos para monitorar o progresso.
+*   **Este plugin calcula significância estatística para os resultados do teste A/B?**
+    *   Não, o Simple AB Test Redirect fornece os dados brutos de visitas e conversões para cada variante. Para determinar a significância estatística, recomenda-se usar esses dados com calculadoras ou ferramentas estatísticas externas.
 *   **Que tipo de páginas posso testar?**
     *   Você pode testar qualquer página em seu site WordPress, desde que possa fornecer URLs distintas para a Página A, Página B, o gatilho e o link de conversão.
+*   **Como o plugin compara as URLs de Gatilho e Conversão? Posso controlar se as query strings são incluídas?**
+    *   Por padrão, o plugin normaliza as URLs comparando os caminhos e ignorando as query strings (ex: `?utm_source=...`). Para uso avançado, desenvolvedores podem usar o filtro `sabtr_match_query_string_for_tests` para alterar esse comportamento e incluir query strings na lógica de correspondência.
+*   **O que acontece se um visitante de alguma forma acessar uma página de variação diferente da que lhe foi atribuída?**
+    *   O plugin usa cookies para lembrar a variante atribuída a um visitante para um teste específico. Se um visitante com uma variante atribuída acessar a URL de gatilho novamente, ou mesmo a URL da *outra* variante, o plugin tentará redirecioná-lo de volta para a URL da sua variante originalmente atribuída. Essa "lógica de correção" ajuda a manter a integridade dos grupos de teste. Acessos que exigiram tal correção são registrados especialmente (ex: "Acesso corrigido à variante A").
+*   **Onde os logs são armazenados e eles são limpos?**
+    *   Ações administrativas (logs de auditoria) são registradas em arquivos em `wp-content/uploads/sabtr-audit-logs/` e são limpas automaticamente após 30 dias. Dados de acesso e conversão de testes (logs de visitantes) são armazenados em tabelas de banco de dados personalizadas e são limpos automaticamente com base no período de retenção que você definir em **Configurações > AB Test Config** (o padrão é 60 dias).
 *   **Este plugin afeta a velocidade do site?**
     *   O Simple AB Test Redirect é projetado para ser leve e eficiente. Os mecanismos de redirecionamento e log são otimizados para impacto mínimo no desempenho. No entanto, como qualquer plugin, ele adiciona algum processamento. É sempre uma boa prática monitorar o desempenho do site.
 
@@ -167,6 +221,7 @@ Assim que o plugin for ativado, você deverá encontrar um menu "Simple AB Test 
 *(É altamente recomendável adicionar screenshots aqui assim que a interface do plugin for finalizada. Boas screenshots incluiriam:)*
 *   *A tela de configuração do teste A/B mostrando novas opções como URLs de gatilho.*
 *   *O dashboard de resultados com relatórios gráficos e logs detalhados.*
+*   *A página de configurações "AB Test Config".*
 *   *A interface de notificação ou auditoria, se aplicável.*
 
 ## Changelog
@@ -174,7 +229,8 @@ Assim que o plugin for ativado, você deverá encontrar um menu "Simple AB Test 
 *   **3.3.2**
     *   README.md inicial detalhado com suporte multilíngue.
     *   Nome do plugin atualizado para Simple AB Test Redirect.
-    *   Adicionadas novas funcionalidades: múltiplos testes, redirecionamento, logs detalhados, relatórios gráficos, notificações, auditoria.
+    *   Adicionadas novas funcionalidades: múltiplos testes, redirecionamento, logs detalhados, relatórios gráficos, notificações, auditoria, configurações ajustáveis, filtros para desenvolvedores.
+    *   Instruções de uso e FAQ aprimoradas.
 
 ## Suporte
 
@@ -196,20 +252,22 @@ Plugin avanzado y seguro para múltiples pruebas A/B con URLs de activación, re
 
 ## Descripción
 
-Simple AB Test Redirect es un plugin de WordPress avanzado y seguro, diseñado para ofrecerte sólidas capacidades de pruebas A/B. Optimiza tu sitio web creando y gestionando múltiples pruebas A/B sin esfuerzo. Este plugin va más allá de las simples variaciones de página, ofreciendo características como URLs de activación для activación precisa de pruebas, mecanismos de redirección y seguimiento exhaustivo. Con logs detallados, seguimiento de conversiones e informes gráficos, obtienes información valiosa sobre el comportamiento del usuario y el rendimiento de las pruebas. Las notificaciones integradas te mantienen informado, mientras que las funciones de auditoría garantizan la transparencia y el control sobre tus experimentos. Simple AB Test Redirect hace que la optimización de sitios web basada en datos sea accesible y eficaz.
+Simple AB Test Redirect es un plugin de WordPress avanzado y seguro, diseñado para ofrecerte sólidas capacidades de pruebas A/B. Optimiza tu sitio web creando y gestionando múltiples pruebas A/B sin esfuerzo. Este plugin va más allá de las simples variaciones de página, ofreciendo características como URLs de activación para activación precisa de pruebas, mecanismos de redirección y seguimiento exhaustivo. Con logs detallados, seguimiento de conversiones e informes gráficos, obtienes información valiosa sobre el comportamiento del usuario y el rendimiento de las pruebas. Las notificaciones integradas te mantienen informado, mientras que las funciones de auditoría garantizan la transparencia y el control sobre tus experimentos. Simple AB Test Redirect hace que la optimización de sitios web basada en datos sea accesible y eficaz.
 
 ### Características Clave
 
 *   **Múltiples pruebas A/B:** Ejecuta varios experimentos simultáneamente para optimizar diferentes aspectos de tu sitio.
 *   **URLs de Activación:** Especifica con precisión qué página/URL activará tu prueba A/B.
 *   **Redirección:** Redirige a los usuarios de forma transparente a diferentes variaciones según las condiciones de la prueba.
-*   **Logs Detallados:** Mantén un registro completo de las actividades de prueba y las interacciones de los usuarios.
+*   **Logs Detallados:** Mantén un registro completo de las actividades de prueba, interacciones de los usuarios y correcciones.
 *   **Seguimiento de Conversiones:** Define enlaces de conversión específicos (por ejemplo, una página de agradecimiento) para medir el éxito de cada variación.
 *   **Informes Gráficos:** Visualiza el rendimiento de la prueba con gráficos fáciles de entender.
-*   **Notificaciones:** Recibe actualizaciones y alertas sobre tus pruebas A/B.
-*   **Auditoría:** Realiza un seguimiento de los cambios y mantén un historial de las configuraciones de tu prueba.
+*   **Notificaciones:** Recibe alertas por correo electrónico para nuevos accesos/conversiones (con límite de tasa).
+*   **Auditoría:** Realiza un seguimiento de las acciones administrativas (creación/actualización/eliminación de pruebas) con logs almacenados en `wp-content/uploads/sabtr-audit-logs/`.
+*   **Ajustes Configurables:** Gestiona notificaciones por correo electrónico, registro de auditoría, retención de logs de base de datos y restablecimiento de datos del plugin a través de **Escritorio de WordPress > Ajustes > AB Test Config**.
 *   **Fácil de Usar:** Diseñado pensando en la simplicidad, haciendo que las pruebas A/B avanzadas sean accesibles sin necesidad de programar.
 *   **Distribución de Tráfico Ajustable:** Controla el porcentaje de visitantes dirigidos a la Página B (el valor predeterminado es 50%).
+*   **Amigable para Desarrolladores:** Incluye filtros como `sabtr_match_query_string_for_tests` para control avanzado de coincidencia de URL.
 
 ## Instalación
 
@@ -221,7 +279,7 @@ Simple AB Test Redirect es un plugin de WordPress avanzado y seguro, diseñado p
 
 ## Cómo Usar (Primeros Pasos)
 
-Una vez que el plugin esté activado, deberías encontrar un menú "Simple AB Test Redirect" en tu área de administración de WordPress.
+Una vez que el plugin esté activado, deberías encontrar un menú "Simple AB Test Redirect" en tu área de administración de WordPress para crear y gestionar pruebas, y una página de ajustes.
 
 ### Configurando tu primera Prueba A/B:
 
@@ -235,6 +293,22 @@ Una vez que el plugin esté activado, deberías encontrar un menú "Simple AB Te
     *   **Enlace de Conversión:** Ingresa la URL completa que significa una conversión exitosa para esta prueba. Podría ser una página de agradecimiento después de enviar un formulario, una página de confirmación de compra, etc. (por ejemplo, `https://www.tusitio.com/gracias`).
 4.  Guarda la configuración de tu prueba.
 
+### Configuración del Plugin
+
+Configura el comportamiento del plugin navegando a **Escritorio de WordPress > Ajustes > AB Test Config**.
+Las opciones disponibles incluyen:
+
+*   **Notificaciones por Correo Electrónico:** Habilita o deshabilita las alertas por correo electrónico. Cuando está habilitado, el plugin envía notificaciones de nuevos accesos o conversiones al correo electrónico del administrador. Estas tienen un límite de tasa para evitar inundar tu bandeja de entrada.
+*   **Registro de Auditoría del Admin:** Habilita o deshabilita el registro de acciones administrativas como la creación, actualización o eliminación de pruebas. Los registros de auditoría se almacenan como archivos `.log` en el directorio `wp-content/uploads/sabtr-audit-logs/`. Los archivos con más de 30 días se eliminan automáticamente.
+*   **Retención de Logs de la Base de Datos:** Establece el número de días (de 7 a 365, por defecto 60) que los logs de acceso y conversión se mantendrán en la base de datos. Los logs más antiguos se eliminan automáticamente mediante una tarea cron diaria.
+*   **Gestión de Logs de Auditoría:**
+    *   **Descargar Log de Auditoría:** Descarga el archivo de log de auditoría del día actual.
+    *   **Limpiar Todos los Logs de Auditoría:** Elimina permanentemente todos los archivos de log de auditoría del servidor.
+*   **Restablecimiento de Datos del Plugin:**
+    *   **Limpiar Mis Cookies:** Elimina las cookies específicas del plugin de tu navegador, que rastrean la variante asignada a ti y cualquier conversión que hayas realizado. Útil para probar tus pruebas A/B como si fueras un nuevo visitante.
+    *   **Limpiar Transitorios de Notificación:** Limpia los indicadores de notificación almacenados en WordPress. Esto puede ayudar si crees que las notificaciones están atascadas o no se envían correctamente.
+    *   Nota: Estas acciones no eliminan ninguna prueba A/B ni datos de log recopilados de la base de datos o archivos de log de auditoría.
+
 ### Viendo Resultados:
 
 1.  Ve al **Dashboard de Simple AB Test Redirect** (probablemente dentro del menú "Simple AB Test Redirect").
@@ -246,8 +320,16 @@ Una vez que el plugin esté activado, deberías encontrar un menú "Simple AB Te
     *   Actualmente, Simple AB Test Redirect está diseñado para pruebas A/B, lo que significa un control (Página A) y una variación (Página B) por prueba. El soporte para múltiples variaciones podría considerarse para futuras versiones.
 *   **¿Cuánto tiempo debo ejecutar mi prueba A/B?**
     *   La duración ideal depende del tráfico de tu sitio web. Necesitas suficientes datos para tomar una decisión estadísticamente significativa. Esto podría variar desde unos pocos días hasta varias semanas. Utiliza los logs detallados y los informes gráficos para monitorear el progreso.
+*   **¿Este plugin calcula la significancia estadística para los resultados de las pruebas A/B?**
+    *   No, Simple AB Test Redirect proporciona los datos brutos de visitas y conversiones para cada variante. Para determinar la significancia estadística, se recomienda utilizar estos datos con calculadoras o herramientas estadísticas externas.
 *   **¿Qué tipo de páginas puedo probar?**
     *   Puedes probar cualquier página en tu sitio de WordPress siempre que puedas proporcionar URLs distintas para la Página A, la Página B, la de activación y el enlace de conversión.
+*   **¿Cómo compara el plugin las URLs de Activación y Conversión? ¿Puedo controlar si se incluyen las cadenas de consulta?**
+    *   Por defecto, el plugin normaliza las URLs comparando las rutas e ignorando las cadenas de consulta (por ejemplo, `?utm_source=...`). Para uso avanzado, los desarrolladores pueden usar el filtro `sabtr_match_query_string_for_tests` para cambiar este comportamiento e incluir cadenas de consulta en la lógica de coincidencia.
+*   **¿Qué sucede si un visitante de alguna manera llega a una página de variación diferente a la que se le asignó?**
+    *   El plugin utiliza cookies para recordar la variante asignada a un visitante para una prueba específica. Si un visitante con una variante asignada llega nuevamente a la URL de activación, o incluso a la URL de la *otra* variante, el plugin intentará redirigirlo de nuevo a la URL de su variante originalmente asignada. Esta "lógica de corrección" ayuda a mantener la integridad de los grupos de prueba. Los accesos que requirieron tal corrección se registran especialmente (por ejemplo, "Acceso corregido a la variante A").
+*   **¿Dónde se almacenan los logs y se limpian?**
+    *   Las acciones administrativas (logs de auditoría) se registran en archivos en `wp-content/uploads/sabtr-audit-logs/` y se limpian automáticamente después de 30 días. Los datos de acceso y conversión de pruebas (logs de visitantes) se almacenan en tablas de base de datos personalizadas y se limpian automáticamente según el período de retención que establezcas en **Ajustes > AB Test Config** (el valor predeterminado es 60 días).
 *   **¿Este plugin afecta la velocidad del sitio?**
     *   Simple AB Test Redirect está diseñado para ser ligero y eficiente. Los mecanismos de redirección y registro están optimizados para un impacto mínimo en el rendimiento. Sin embargo, como cualquier plugin, añade algo de procesamiento. Siempre es una buena práctica monitorear el rendimiento del sitio.
 
@@ -256,6 +338,7 @@ Una vez que el plugin esté activado, deberías encontrar un menú "Simple AB Te
 *(Se recomienda encarecidamente añadir capturas de pantalla aquí una vez que la interfaz del plugin esté finalizada. Buenas capturas de pantalla incluirían:)*
 *   *La pantalla de configuración de la prueba A/B mostrando nuevas opciones como URLs de activación.*
 *   *El dashboard de resultados con informes gráficos y logs detallados.*
+*   *La página de ajustes "AB Test Config".*
 *   *La interfaz de notificación o auditoría, si corresponde.*
 
 ## Changelog
@@ -263,7 +346,8 @@ Una vez que el plugin esté activado, deberías encontrar un menú "Simple AB Te
 *   **3.3.2**
     *   README.md inicial detallado con soporte multilingüe.
     *   Nombre del plugin actualizado a Simple AB Test Redirect.
-    *   Añadidas nuevas características: múltiples pruebas, redirección, logs detallados, informes gráficos, notificaciones, auditoría.
+    *   Añadidas nuevas características: múltiples pruebas, redirección, logs detallados, informes gráficos, notificaciones, auditoría, ajustes configurables, filtros para desarrolladores.
+    *   Instrucciones de uso y FAQ mejoradas.
 
 ## Soporte
 
